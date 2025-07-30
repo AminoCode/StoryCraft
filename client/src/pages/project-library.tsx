@@ -55,10 +55,14 @@ export default function ProjectLibrary() {
 
   const createProjectMutation = useMutation({
     mutationFn: async (data: InsertProject) => {
+      console.log("Sending API request with data:", data);
       const response = await apiRequest("POST", "/api/projects", data);
-      return await response.json();
+      const result = await response.json();
+      console.log("API response:", result);
+      return result;
     },
     onSuccess: () => {
+      console.log("Project created successfully!");
       queryClient.invalidateQueries({ queryKey: ["/api/projects"] });
       setIsCreateDialogOpen(false);
       createForm.reset();
@@ -67,7 +71,8 @@ export default function ProjectLibrary() {
         description: "Your new project has been created successfully.",
       });
     },
-    onError: () => {
+    onError: (error) => {
+      console.error("Project creation failed:", error);
       toast({
         title: "Error",
         description: "Failed to create project. Please try again.",
@@ -98,7 +103,22 @@ export default function ProjectLibrary() {
   });
 
   const handleCreateProject = (data: InsertProject) => {
-    createProjectMutation.mutate(data);
+    if (!user?.id) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to create a project.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    const projectData = {
+      ...data,
+      userId: user.id,
+    };
+    
+    console.log("Creating project with data:", projectData);
+    createProjectMutation.mutate(projectData);
   };
 
   const handleDeleteProject = (id: string) => {
@@ -228,6 +248,7 @@ export default function ProjectLibrary() {
                   <Button 
                     type="submit" 
                     disabled={createProjectMutation.isPending}
+                    onClick={() => console.log("Create button clicked", createForm.formState.errors)}
                   >
                     {createProjectMutation.isPending ? "Creating..." : "Create Project"}
                   </Button>
