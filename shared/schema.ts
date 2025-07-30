@@ -105,6 +105,7 @@ export const aiSuggestions = pgTable("ai_suggestions", {
 
 export const insertProjectSchema = createInsertSchema(projects).omit({
   id: true,
+  userId: true,
   lastOpened: true,
   createdAt: true,
 });
