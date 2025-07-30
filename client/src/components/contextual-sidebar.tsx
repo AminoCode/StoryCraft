@@ -253,12 +253,12 @@ export default function ContextualSidebar({ documentId, projectId }: ContextualS
           <TabsContent value="characters" className="h-full overflow-y-auto p-0 m-0">
             <div className="p-4 space-y-4">
               {charactersLoading ? (
-              <div className="animate-pulse space-y-4">
-                {[1, 2].map(i => (
-                  <div key={i} className="bg-gray-100 rounded-lg h-32"></div>
-                ))}
-              </div>
-            ) : (
+                <div className="animate-pulse space-y-4">
+                  {[1, 2].map(i => (
+                    <div key={i} className="bg-gray-100 rounded-lg h-32"></div>
+                  ))}
+                </div>
+              ) : (
               <div className="space-y-4">
                 {characters.map((character) => (
                   <Card key={character.id} className="bg-gray-50 border-gray-200">
@@ -285,18 +285,18 @@ export default function ContextualSidebar({ documentId, projectId }: ContextualS
                           <div><strong>Last mentioned:</strong> {character.lastMentioned}</div>
                         )}
                       </div>
-                      {character.relationships && Array.isArray(character.relationships) && character.relationships.length > 0 && (
+                      {character.relationships && Array.isArray(character.relationships) && character.relationships.length > 0 ? (
                         <div className="mt-3 pt-3 border-t border-gray-200">
                           <div className="text-xs text-gray-500 mb-2">Relationships:</div>
                           <div className="flex flex-wrap gap-2">
-                            {character.relationships.map((rel, index) => (
+                            {(character.relationships as string[]).map((rel, index) => (
                               <Badge key={index} variant="outline" className="text-xs">
-                                {String(rel)}
+                                {rel}
                               </Badge>
                             ))}
                           </div>
                         </div>
-                      )}
+                      ) : null}
                     </CardContent>
                   </Card>
                 ))}
@@ -382,9 +382,9 @@ export default function ContextualSidebar({ documentId, projectId }: ContextualS
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
-                </div>
               </div>
             )}
+            </div>
           </TabsContent>
 
           <TabsContent value="locations" className="h-full overflow-y-auto p-0 m-0">
@@ -511,12 +511,12 @@ export default function ContextualSidebar({ documentId, projectId }: ContextualS
           <TabsContent value="timeline" className="h-full overflow-y-auto p-0 m-0">
             <div className="p-4">
               {timelineLoading ? (
-              <div className="animate-pulse space-y-4">
-                {[1, 2, 3].map(i => (
-                  <div key={i} className="bg-gray-100 rounded-lg h-20"></div>
-                ))}
-              </div>
-            ) : (
+                <div className="animate-pulse space-y-4">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="bg-gray-100 rounded-lg h-20"></div>
+                  ))}
+                </div>
+              ) : (
               <div className="space-y-4">
                 {timeline.map((event, index) => (
                   <div key={event.id} className="flex">
@@ -610,6 +610,7 @@ export default function ContextualSidebar({ documentId, projectId }: ContextualS
                   </DialogContent>
                 </Dialog>
               </div>
+            )}
             </div>
           </TabsContent>
         </div>
