@@ -3,6 +3,8 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { writingAssistant } from "./services/writing-assistant";
 import { 
+  insertProjectSchema,
+  insertChapterSchema,
   insertDocumentSchema, 
   insertCharacterSchema, 
   insertLocationSchema, 
@@ -10,6 +12,94 @@ import {
 } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Project routes
+  app.get("/api/projects", async (req, res) => {
+    try {
+      const projects = await storage.getAllProjects();
+      res.json(projects);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch projects" });
+    }
+  });
+
+  app.get("/api/projects/:id", async (req, res) => {
+    try {
+      const project = await storage.getProject(req.params.id);
+      if (!project) {
+        return res.status(404).json({ error: "Project not found" });
+      }
+      res.json(project);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch project" });
+    }
+  });
+
+  app.post("/api/projects", async (req, res) => {
+    try {
+      const parsed = insertProjectSchema.parse(req.body);
+      const project = await storage.createProject(parsed);
+      res.json(project);
+    } catch (error) {
+      res.status(400).json({ error: "Invalid project data" });
+    }
+  });
+
+  app.put("/api/projects/:id", async (req, res) => {
+    try {
+      const project = await storage.updateProject(req.params.id, req.body);
+      if (!project) {
+        return res.status(404).json({ error: "Project not found" });
+      }
+      res.json(project);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update project" });
+    }
+  });
+
+  // Chapter routes
+  app.get("/api/projects/:projectId/chapters", async (req, res) => {
+    try {
+      const chapters = await storage.getChaptersByProject(req.params.projectId);
+      res.json(chapters);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch chapters" });
+    }
+  });
+
+  app.get("/api/chapters/:id", async (req, res) => {
+    try {
+      const chapter = await storage.getChapter(req.params.id);
+      if (!chapter) {
+        return res.status(404).json({ error: "Chapter not found" });
+      }
+      res.json(chapter);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch chapter" });
+    }
+  });
+
+  app.post("/api/chapters", async (req, res) => {
+    try {
+      const parsed = insertChapterSchema.parse(req.body);
+      const chapter = await storage.createChapter(parsed);
+      res.json(chapter);
+    } catch (error) {
+      res.status(400).json({ error: "Invalid chapter data" });
+    }
+  });
+
+  app.put("/api/chapters/:id", async (req, res) => {
+    try {
+      const chapter = await storage.updateChapter(req.params.id, req.body);
+      if (!chapter) {
+        return res.status(404).json({ error: "Chapter not found" });
+      }
+      res.json(chapter);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update chapter" });
+    }
+  });
+
   // Document routes
   app.get("/api/documents/:id", async (req, res) => {
     try {
@@ -46,9 +136,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Character routes
+  app.get("/api/projects/:projectId/characters", async (req, res) => {
+    try {
+      const characters = await storage.getCharactersByProject(req.params.projectId);
+      res.json(characters);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch characters" });
+    }
+  });
+
+  // Keep old route for compatibility
   app.get("/api/documents/:documentId/characters", async (req, res) => {
     try {
-      const characters = await storage.getCharactersByDocument(req.params.documentId);
+      const characters = await storage.getCharactersByProject("default-project");
       res.json(characters);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch characters" });
@@ -78,9 +178,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Location routes
+  app.get("/api/projects/:projectId/locations", async (req, res) => {
+    try {
+      const locations = await storage.getLocationsByProject(req.params.projectId);
+      res.json(locations);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch locations" });
+    }
+  });
+
+  // Keep old route for compatibility
   app.get("/api/documents/:documentId/locations", async (req, res) => {
     try {
-      const locations = await storage.getLocationsByDocument(req.params.documentId);
+      const locations = await storage.getLocationsByProject("default-project");
       res.json(locations);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch locations" });
@@ -98,9 +208,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Timeline routes
+  app.get("/api/projects/:projectId/timeline", async (req, res) => {
+    try {
+      const events = await storage.getTimelineEventsByProject(req.params.projectId);
+      res.json(events);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch timeline events" });
+    }
+  });
+
+  // Keep old route for compatibility
   app.get("/api/documents/:documentId/timeline", async (req, res) => {
     try {
-      const events = await storage.getTimelineEventsByDocument(req.params.documentId);
+      const events = await storage.getTimelineEventsByProject("default-project");
       res.json(events);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch timeline events" });

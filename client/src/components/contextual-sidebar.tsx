@@ -9,21 +9,23 @@ import type { Character, Location, TimelineEvent } from "@shared/schema";
 
 interface ContextualSidebarProps {
   documentId: string;
+  projectId?: string;
 }
 
-export default function ContextualSidebar({ documentId }: ContextualSidebarProps) {
+export default function ContextualSidebar({ documentId, projectId }: ContextualSidebarProps) {
   const [activeTab, setActiveTab] = useState("characters");
 
+  // Use project-based queries if projectId is provided, otherwise fallback to document-based
   const { data: characters = [], isLoading: charactersLoading } = useQuery<Character[]>({
-    queryKey: ["/api/documents", documentId, "characters"],
+    queryKey: projectId ? ["/api/projects", projectId, "characters"] : ["/api/documents", documentId, "characters"],
   });
 
   const { data: locations = [], isLoading: locationsLoading } = useQuery<Location[]>({
-    queryKey: ["/api/documents", documentId, "locations"],
+    queryKey: projectId ? ["/api/projects", projectId, "locations"] : ["/api/documents", documentId, "locations"],
   });
 
   const { data: timeline = [], isLoading: timelineLoading } = useQuery<TimelineEvent[]>({
-    queryKey: ["/api/documents", documentId, "timeline"],
+    queryKey: projectId ? ["/api/projects", projectId, "timeline"] : ["/api/documents", documentId, "timeline"],
   });
 
   return (
@@ -98,7 +100,7 @@ export default function ContextualSidebar({ documentId }: ContextualSidebarProps
                         <div className="mt-3 pt-3 border-t border-gray-200">
                           <div className="text-xs text-gray-500 mb-2">Relationships:</div>
                           <div className="flex flex-wrap gap-2">
-                            {(character.relationships as string[]).map((rel: string, index: number) => (
+                            {character.relationships.map((rel, index) => (
                               <Badge key={index} variant="outline" className="text-xs">
                                 {String(rel)}
                               </Badge>

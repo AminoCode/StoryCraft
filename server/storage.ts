@@ -1,9 +1,13 @@
 import { 
+  type Project,
+  type Chapter,
   type Document, 
   type Character, 
   type Location, 
   type TimelineEvent, 
   type AiSuggestion,
+  type InsertProject,
+  type InsertChapter,
   type InsertDocument, 
   type InsertCharacter, 
   type InsertLocation, 
@@ -13,38 +17,54 @@ import {
 import { randomUUID } from "crypto";
 
 export interface IStorage {
-  // Document operations
+  // Project operations
+  getAllProjects(): Promise<Project[]>;
+  getProject(id: string): Promise<Project | undefined>;
+  createProject(project: InsertProject): Promise<Project>;
+  updateProject(id: string, updates: Partial<Project>): Promise<Project | undefined>;
+  deleteProject(id: string): Promise<boolean>;
+  
+  // Chapter operations
+  getChaptersByProject(projectId: string): Promise<Chapter[]>;
+  getChapter(id: string): Promise<Chapter | undefined>;
+  createChapter(chapter: InsertChapter): Promise<Chapter>;
+  updateChapter(id: string, updates: Partial<Chapter>): Promise<Chapter | undefined>;
+  deleteChapter(id: string): Promise<boolean>;
+  
+  // Document operations (keeping for compatibility)
   getDocument(id: string): Promise<Document | undefined>;
   createDocument(document: InsertDocument): Promise<Document>;
   updateDocument(id: string, updates: Partial<Document>): Promise<Document | undefined>;
   deleteDocument(id: string): Promise<boolean>;
   
   // Character operations
-  getCharactersByDocument(documentId: string): Promise<Character[]>;
+  getCharactersByProject(projectId: string): Promise<Character[]>;
   createCharacter(character: InsertCharacter): Promise<Character>;
   updateCharacter(id: string, updates: Partial<Character>): Promise<Character | undefined>;
   deleteCharacter(id: string): Promise<boolean>;
   
   // Location operations
-  getLocationsByDocument(documentId: string): Promise<Location[]>;
+  getLocationsByProject(projectId: string): Promise<Location[]>;
   createLocation(location: InsertLocation): Promise<Location>;
   updateLocation(id: string, updates: Partial<Location>): Promise<Location | undefined>;
   deleteLocation(id: string): Promise<boolean>;
   
   // Timeline operations
-  getTimelineEventsByDocument(documentId: string): Promise<TimelineEvent[]>;
+  getTimelineEventsByProject(projectId: string): Promise<TimelineEvent[]>;
   createTimelineEvent(event: InsertTimelineEvent): Promise<TimelineEvent>;
   updateTimelineEvent(id: string, updates: Partial<TimelineEvent>): Promise<TimelineEvent | undefined>;
   deleteTimelineEvent(id: string): Promise<boolean>;
   
   // AI Suggestions operations
-  getAiSuggestionsByDocument(documentId: string): Promise<AiSuggestion[]>;
+  getAiSuggestionsByProject(projectId: string): Promise<AiSuggestion[]>;
   createAiSuggestion(suggestion: InsertAiSuggestion): Promise<AiSuggestion>;
   updateAiSuggestion(id: string, updates: Partial<AiSuggestion>): Promise<AiSuggestion | undefined>;
   deleteAiSuggestion(id: string): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
+  private projects: Map<string, Project>;
+  private chapters: Map<string, Chapter>;
   private documents: Map<string, Document>;
   private characters: Map<string, Character>;
   private locations: Map<string, Location>;
@@ -52,15 +72,28 @@ export class MemStorage implements IStorage {
   private aiSuggestions: Map<string, AiSuggestion>;
 
   constructor() {
+    this.projects = new Map();
+    this.chapters = new Map();
     this.documents = new Map();
     this.characters = new Map();
     this.locations = new Map();
     this.timelineEvents = new Map();
     this.aiSuggestions = new Map();
     
-    // Create a default document for demo
-    const defaultDoc: Document = {
-      id: "default-doc",
+    // Create default project and chapters for demo
+    const defaultProject: Project = {
+      id: "default-project",
+      title: "The Mansion Mystery",
+      description: "A supernatural thriller set in an old Victorian mansion",
+      genre: "Thriller",
+      lastOpened: new Date(),
+      createdAt: new Date(),
+    };
+    this.projects.set(defaultProject.id, defaultProject);
+
+    const defaultChapter: Chapter = {
+      id: "default-chapter",
+      projectId: "default-project",
       title: "Chapter 3: The Mysterious Letter",
       content: `Sarah walked through the dimly lit corridor, her footsteps echoing against the marble floors. The old mansion held secrets that she was determined to uncover.
 
@@ -68,10 +101,96 @@ export class MemStorage implements IStorage {
 
 As she approached the library door, Sarah noticed something peculiar. The doorknob was warm to the touch, despite the cold temperature throughout the rest of the house. She turned it slowly, and the door creaked open to reveal—`,
       wordCount: 847,
+      order: 3,
+      lastSaved: new Date(),
+      createdAt: new Date(),
+    };
+    this.chapters.set(defaultChapter.id, defaultChapter);
+
+    // Keep the old document for compatibility
+    const defaultDoc: Document = {
+      id: "default-doc",
+      title: "Chapter 3: The Mysterious Letter",
+      content: defaultChapter.content,
+      wordCount: 847,
       lastSaved: new Date(),
       createdAt: new Date(),
     };
     this.documents.set(defaultDoc.id, defaultDoc);
+  }
+
+  // Project operations
+  async getAllProjects(): Promise<Project[]> {
+    return Array.from(this.projects.values()).sort((a, b) => 
+      new Date(b.lastOpened || 0).getTime() - new Date(a.lastOpened || 0).getTime()
+    );
+  }
+
+  async getProject(id: string): Promise<Project | undefined> {
+    return this.projects.get(id);
+  }
+
+  async createProject(insertProject: InsertProject): Promise<Project> {
+    const id = randomUUID();
+    const project: Project = {
+      ...insertProject,
+      id,
+      lastOpened: new Date(),
+      createdAt: new Date(),
+    };
+    this.projects.set(id, project);
+    return project;
+  }
+
+  async updateProject(id: string, updates: Partial<Project>): Promise<Project | undefined> {
+    const project = this.projects.get(id);
+    if (!project) return undefined;
+    
+    const updated = { ...project, ...updates, lastOpened: new Date() };
+    this.projects.set(id, updated);
+    return updated;
+  }
+
+  async deleteProject(id: string): Promise<boolean> {
+    return this.projects.delete(id);
+  }
+
+  // Chapter operations
+  async getChaptersByProject(projectId: string): Promise<Chapter[]> {
+    return Array.from(this.chapters.values())
+      .filter((chapter) => chapter.projectId === projectId)
+      .sort((a, b) => a.order - b.order);
+  }
+
+  async getChapter(id: string): Promise<Chapter | undefined> {
+    return this.chapters.get(id);
+  }
+
+  async createChapter(insertChapter: InsertChapter): Promise<Chapter> {
+    const id = randomUUID();
+    const chapter: Chapter = {
+      ...insertChapter,
+      id,
+      content: insertChapter.content || "",
+      wordCount: insertChapter.wordCount || 0,
+      lastSaved: new Date(),
+      createdAt: new Date(),
+    };
+    this.chapters.set(id, chapter);
+    return chapter;
+  }
+
+  async updateChapter(id: string, updates: Partial<Chapter>): Promise<Chapter | undefined> {
+    const chapter = this.chapters.get(id);
+    if (!chapter) return undefined;
+    
+    const updated = { ...chapter, ...updates, lastSaved: new Date() };
+    this.chapters.set(id, updated);
+    return updated;
+  }
+
+  async deleteChapter(id: string): Promise<boolean> {
+    return this.chapters.delete(id);
   }
 
   // Document operations
@@ -107,9 +226,9 @@ As she approached the library door, Sarah noticed something peculiar. The doorkn
   }
 
   // Character operations
-  async getCharactersByDocument(documentId: string): Promise<Character[]> {
+  async getCharactersByProject(projectId: string): Promise<Character[]> {
     return Array.from(this.characters.values()).filter(
-      (character) => character.documentId === documentId,
+      (character) => character.projectId === projectId,
     );
   }
 
@@ -124,6 +243,7 @@ As she approached the library door, Sarah noticed something peculiar. The doorkn
       traits: insertCharacter.traits || null,
       relationships: insertCharacter.relationships || null,
       lastMentioned: insertCharacter.lastMentioned || null,
+      chapterId: insertCharacter.chapterId || null,
     };
     this.characters.set(id, character);
     return character;
@@ -143,9 +263,9 @@ As she approached the library door, Sarah noticed something peculiar. The doorkn
   }
 
   // Location operations
-  async getLocationsByDocument(documentId: string): Promise<Location[]> {
+  async getLocationsByProject(projectId: string): Promise<Location[]> {
     return Array.from(this.locations.values()).filter(
-      (location) => location.documentId === documentId,
+      (location) => location.projectId === projectId,
     );
   }
 
@@ -158,6 +278,7 @@ As she approached the library door, Sarah noticed something peculiar. The doorkn
       description: insertLocation.description || null,
       keyFeatures: insertLocation.keyFeatures || null,
       firstMentioned: insertLocation.firstMentioned || null,
+      chapterId: insertLocation.chapterId || null,
     };
     this.locations.set(id, location);
     return location;
@@ -177,9 +298,9 @@ As she approached the library door, Sarah noticed something peculiar. The doorkn
   }
 
   // Timeline operations
-  async getTimelineEventsByDocument(documentId: string): Promise<TimelineEvent[]> {
+  async getTimelineEventsByProject(projectId: string): Promise<TimelineEvent[]> {
     return Array.from(this.timelineEvents.values())
-      .filter((event) => event.documentId === documentId)
+      .filter((event) => event.projectId === projectId)
       .sort((a, b) => a.order - b.order);
   }
 
@@ -189,6 +310,7 @@ As she approached the library door, Sarah noticed something peculiar. The doorkn
       ...insertEvent, 
       id,
       chapter: insertEvent.chapter || null,
+      chapterId: insertEvent.chapterId || null,
       description: insertEvent.description || null,
     };
     this.timelineEvents.set(id, event);
@@ -209,9 +331,9 @@ As she approached the library door, Sarah noticed something peculiar. The doorkn
   }
 
   // AI Suggestions operations
-  async getAiSuggestionsByDocument(documentId: string): Promise<AiSuggestion[]> {
+  async getAiSuggestionsByProject(projectId: string): Promise<AiSuggestion[]> {
     return Array.from(this.aiSuggestions.values()).filter(
-      (suggestion) => suggestion.documentId === documentId,
+      (suggestion) => suggestion.projectId === projectId,
     );
   }
 
@@ -221,6 +343,7 @@ As she approached the library door, Sarah noticed something peculiar. The doorkn
       ...insertSuggestion, 
       id,
       applied: insertSuggestion.applied || false,
+      chapterId: insertSuggestion.chapterId || null,
     };
     this.aiSuggestions.set(id, suggestion);
     return suggestion;
