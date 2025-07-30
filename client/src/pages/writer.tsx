@@ -174,7 +174,7 @@ export default function WriterPage() {
   }
 
   return (
-    <div className="flex h-screen bg-background overflow-hidden">
+    <div className="flex h-screen bg-gray-50 overflow-hidden">
       <FloatingToolbar
         onAiSuggestions={handleAiSuggestions}
         onExport={handleExport}
@@ -183,7 +183,7 @@ export default function WriterPage() {
       
       {/* Project Navigation Header */}
       <div className="flex-1 flex flex-col">
-        <div className="bg-background border-b border-border px-6 py-4">
+        <div className="bg-white border-b border-gray-200 px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Link href="/projects">
@@ -232,7 +232,7 @@ export default function WriterPage() {
         </div>
 
         {/* Chapter Navigation */}
-        <div className="bg-background border-b border-border px-6 py-3">
+        <div className="bg-white border-b border-gray-200 px-6 py-3">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium">Chapters:</span>
@@ -308,7 +308,7 @@ export default function WriterPage() {
         
         <div className="flex-1 flex">
           {/* Main Writing Area */}
-          <div className="flex-1 bg-background">
+          <div className="flex-1 bg-white">
             <RichTextEditor
               content={content}
               onChange={handleContentChange}

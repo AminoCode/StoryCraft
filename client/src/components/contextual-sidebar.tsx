@@ -142,61 +142,60 @@ export default function ContextualSidebar({ documentId, projectId }: ContextualS
   };
 
   return (
-    <div className="w-80 bg-background border-l border-border flex flex-col h-full">
+    <div className="w-80 bg-white border-l border-gray-200 flex flex-col">
       {/* Sidebar Header */}
-      <div className="border-b border-border p-4 flex-shrink-0">
-        <h2 className="font-semibold text-foreground">Story Elements</h2>
+      <div className="border-b border-gray-200 p-4">
+        <h2 className="font-semibold text-gray-900">Story Elements</h2>
       </div>
 
       {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
-        <TabsList className="grid w-full grid-cols-3 border-b border-border rounded-none h-auto bg-transparent flex-shrink-0">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
+        <TabsList className="grid w-full grid-cols-3 border-b border-gray-200 rounded-none h-auto bg-transparent">
           <TabsTrigger 
             value="characters" 
-            className="flex items-center space-x-2 px-4 py-3 text-sm font-medium data-[state=active]:bg-muted data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary"
+            className="flex items-center space-x-2 px-4 py-3 text-sm font-medium data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600"
           >
             <Users size={16} />
             <span>Characters</span>
           </TabsTrigger>
           <TabsTrigger 
             value="locations"
-            className="flex items-center space-x-2 px-4 py-3 text-sm font-medium data-[state=active]:bg-muted data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary"
+            className="flex items-center space-x-2 px-4 py-3 text-sm font-medium data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600"
           >
             <MapPin size={16} />
             <span>Locations</span>
           </TabsTrigger>
           <TabsTrigger 
             value="timeline"
-            className="flex items-center space-x-2 px-4 py-3 text-sm font-medium data-[state=active]:bg-muted data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary"
+            className="flex items-center space-x-2 px-4 py-3 text-sm font-medium data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600"
           >
             <Clock size={16} />
             <span>Timeline</span>
           </TabsTrigger>
         </TabsList>
 
-        <div className="flex-1 overflow-hidden">
-          <div className={`${activeTab === 'characters' ? 'block' : 'hidden'} h-full overflow-y-auto p-4`}>
-            <div className="space-y-4">
-              {charactersLoading ? (
-                <div className="animate-pulse space-y-4">
-                  {[1, 2].map(i => (
-                    <div key={i} className="bg-muted rounded-lg h-32"></div>
-                  ))}
-                </div>
-              ) : (
-                <>
-                  {characters.map((character) => (
-                  <Card key={character.id} className="bg-card border-border">
+        <div className="flex-1 overflow-y-auto">
+          <TabsContent value="characters" className="p-4 space-y-4 m-0">
+            {charactersLoading ? (
+              <div className="animate-pulse space-y-4">
+                {[1, 2].map(i => (
+                  <div key={i} className="bg-gray-100 rounded-lg h-32"></div>
+                ))}
+              </div>
+            ) : (
+              <>
+                {characters.map((character) => (
+                  <Card key={character.id} className="bg-gray-50 border-gray-200">
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between mb-3">
-                        <h3 className="font-semibold text-foreground">{character.name}</h3>
+                        <h3 className="font-semibold text-gray-900">{character.name}</h3>
                         {character.role && (
                           <Badge variant="secondary" className="text-xs">
                             {character.role}
                           </Badge>
                         )}
                       </div>
-                      <div className="space-y-2 text-sm text-muted-foreground">
+                      <div className="space-y-2 text-sm text-gray-600">
                         {character.age && (
                           <div><strong>Age:</strong> {character.age}</div>
                         )}
@@ -211,12 +210,12 @@ export default function ContextualSidebar({ documentId, projectId }: ContextualS
                         )}
                       </div>
                       {character.relationships && Array.isArray(character.relationships) && character.relationships.length > 0 && (
-                        <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-                          <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">Relationships:</div>
+                        <div className="mt-3 pt-3 border-t border-gray-200">
+                          <div className="text-xs text-gray-500 mb-2">Relationships:</div>
                           <div className="flex flex-wrap gap-2">
                             {character.relationships.map((rel, index) => (
                               <Badge key={index} variant="outline" className="text-xs">
-                                {typeof rel === 'string' ? rel : JSON.stringify(rel)}
+                                {String(rel)}
                               </Badge>
                             ))}
                           </div>
@@ -231,7 +230,7 @@ export default function ContextualSidebar({ documentId, projectId }: ContextualS
                   <DialogTrigger asChild>
                     <Button
                       variant="outline"
-                      className="w-full p-3 border-2 border-dashed border-border text-muted-foreground hover:border-primary hover:text-primary"
+                      className="w-full p-3 border-2 border-dashed border-gray-300 text-gray-500 hover:border-blue-600 hover:text-blue-600"
                     >
                       <Plus size={16} className="mr-2" />
                       Add New Character
@@ -307,26 +306,24 @@ export default function ContextualSidebar({ documentId, projectId }: ContextualS
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
-                </>
-              )}
-            </div>
-          </div>
+              </>
+            )}
+          </TabsContent>
 
-          <div className={`${activeTab === 'locations' ? 'block' : 'hidden'} h-full overflow-y-auto p-4`}>
-            <div className="space-y-4">
-              {locationsLoading ? (
-                <div className="animate-pulse space-y-4">
-                  {[1, 2].map(i => (
-                    <div key={i} className="bg-muted rounded-lg h-32"></div>
-                  ))}
-                </div>
-              ) : (
-                <>
-                  {locations.map((location) => (
-                  <Card key={location.id} className="bg-card border-border">
+          <TabsContent value="locations" className="p-4 space-y-4 m-0">
+            {locationsLoading ? (
+              <div className="animate-pulse space-y-4">
+                {[1, 2].map(i => (
+                  <div key={i} className="bg-gray-100 rounded-lg h-32"></div>
+                ))}
+              </div>
+            ) : (
+              <>
+                {locations.map((location) => (
+                  <Card key={location.id} className="bg-gray-50 border-gray-200">
                     <CardContent className="p-4">
-                      <h3 className="font-semibold text-foreground mb-3">{location.name}</h3>
-                      <div className="space-y-2 text-sm text-muted-foreground">
+                      <h3 className="font-semibold text-gray-900 mb-3">{location.name}</h3>
+                      <div className="space-y-2 text-sm text-gray-600">
                         {location.type && (
                           <div><strong>Type:</strong> {location.type}</div>
                         )}
@@ -361,7 +358,7 @@ export default function ContextualSidebar({ documentId, projectId }: ContextualS
                   <DialogTrigger asChild>
                     <Button
                       variant="outline"
-                      className="w-full p-3 border-2 border-dashed border-border text-muted-foreground hover:border-primary hover:text-primary"
+                      className="w-full p-3 border-2 border-dashed border-gray-300 text-gray-500 hover:border-blue-600 hover:text-blue-600"
                     >
                       <Plus size={16} className="mr-2" />
                       Add New Location
@@ -428,21 +425,19 @@ export default function ContextualSidebar({ documentId, projectId }: ContextualS
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
-                </>
-              )}
-            </div>
-          </div>
+              </>
+            )}
+          </TabsContent>
 
-          <div className={`${activeTab === 'timeline' ? 'block' : 'hidden'} h-full overflow-y-auto p-4`}>
-            <div className="space-y-4">
-              {timelineLoading ? (
-                <div className="animate-pulse space-y-4">
-                  {[1, 2, 3].map(i => (
-                    <div key={i} className="bg-muted rounded-lg h-20"></div>
-                  ))}
-                </div>
-              ) : (
-                <>
+          <TabsContent value="timeline" className="p-4 m-0">
+            {timelineLoading ? (
+              <div className="animate-pulse space-y-4">
+                {[1, 2, 3].map(i => (
+                  <div key={i} className="bg-gray-100 rounded-lg h-20"></div>
+                ))}
+              </div>
+            ) : (
+              <div className="space-y-4">
                 {timeline.map((event, index) => (
                   <div key={event.id} className="flex">
                     <div className="flex flex-col items-center mr-4">
@@ -476,7 +471,7 @@ export default function ContextualSidebar({ documentId, projectId }: ContextualS
                   <DialogTrigger asChild>
                     <Button
                       variant="outline"
-                      className="w-full p-3 border-2 border-dashed border-border text-muted-foreground hover:border-primary hover:text-primary"
+                      className="w-full p-3 border-2 border-dashed border-gray-300 text-gray-500 hover:border-blue-600 hover:text-blue-600"
                     >
                       <Plus size={16} className="mr-2" />
                       Add Timeline Event
@@ -534,16 +529,15 @@ export default function ContextualSidebar({ documentId, projectId }: ContextualS
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
-                </>
-              )}
-            </div>
-          </div>
+              </div>
+            )}
+          </TabsContent>
         </div>
       </Tabs>
 
       {/* Sidebar Footer */}
-      <div className="border-t border-border p-4 flex-shrink-0">
-        <div className="flex items-center justify-between text-sm text-muted-foreground">
+      <div className="border-t border-gray-200 p-4">
+        <div className="flex items-center justify-between text-sm text-gray-500">
           <span>AI Auto-Extract: Active</span>
           <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
             <RefreshCw size={14} />
