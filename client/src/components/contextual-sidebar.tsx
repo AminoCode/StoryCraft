@@ -149,8 +149,8 @@ export default function ContextualSidebar({ documentId, projectId }: ContextualS
       </div>
 
       {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-        <TabsList className="grid w-full grid-cols-4 border-b border-gray-200 rounded-none h-auto bg-transparent">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
+        <TabsList className="grid w-full grid-cols-4 border-b border-gray-200 dark:border-gray-700 rounded-none h-auto bg-transparent flex-shrink-0">
           <TabsTrigger 
             value="ai-suggestions" 
             className="flex items-center space-x-1 px-3 py-3 text-sm font-medium data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600"
@@ -181,9 +181,9 @@ export default function ContextualSidebar({ documentId, projectId }: ContextualS
           </TabsTrigger>
         </TabsList>
 
-        <div className="flex-1 min-h-0 overflow-hidden">
-          <TabsContent value="ai-suggestions" className="p-4 space-y-4 m-0 h-full overflow-y-auto">
-            <div className="space-y-4">
+        <div className="flex-1 min-h-0">
+          <TabsContent value="ai-suggestions" className="h-full overflow-y-auto p-0 m-0">
+            <div className="p-4 space-y-4">
               {/* AI Writing Suggestions */}
               <Card className="bg-gradient-to-br from-purple-50 to-blue-50 border-purple-200">
                 <CardContent className="p-4">
@@ -250,15 +250,16 @@ export default function ContextualSidebar({ documentId, projectId }: ContextualS
             </div>
           </TabsContent>
 
-          <TabsContent value="characters" className="p-4 space-y-4 m-0 h-full overflow-y-auto">
-            {charactersLoading ? (
+          <TabsContent value="characters" className="h-full overflow-y-auto p-0 m-0">
+            <div className="p-4 space-y-4">
+              {charactersLoading ? (
               <div className="animate-pulse space-y-4">
                 {[1, 2].map(i => (
                   <div key={i} className="bg-gray-100 rounded-lg h-32"></div>
                 ))}
               </div>
             ) : (
-              <>
+              <div className="space-y-4">
                 {characters.map((character) => (
                   <Card key={character.id} className="bg-gray-50 border-gray-200">
                     <CardContent className="p-4">
@@ -381,20 +382,22 @@ export default function ContextualSidebar({ documentId, projectId }: ContextualS
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
-              </>
+                </div>
+              </div>
             )}
           </TabsContent>
 
-          <TabsContent value="locations" className="p-4 space-y-4 m-0 h-full overflow-y-auto">
-            {locationsLoading ? (
-              <div className="animate-pulse space-y-4">
-                {[1, 2].map(i => (
-                  <div key={i} className="bg-gray-100 rounded-lg h-32"></div>
-                ))}
-              </div>
-            ) : (
-              <>
-                {locations.map((location) => (
+          <TabsContent value="locations" className="h-full overflow-y-auto p-0 m-0">
+            <div className="p-4 space-y-4">
+              {locationsLoading ? (
+                <div className="animate-pulse space-y-4">
+                  {[1, 2].map(i => (
+                    <div key={i} className="bg-gray-100 rounded-lg h-32"></div>
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {locations.map((location) => (
                   <Card key={location.id} className="bg-gray-50 border-gray-200">
                     <CardContent className="p-4">
                       <h3 className="font-semibold text-gray-900 mb-3">{location.name}</h3>
@@ -500,12 +503,14 @@ export default function ContextualSidebar({ documentId, projectId }: ContextualS
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
-              </>
-            )}
+                </div>
+              )}
+            </div>
           </TabsContent>
 
-          <TabsContent value="timeline" className="p-4 m-0 h-full overflow-y-auto">
-            {timelineLoading ? (
+          <TabsContent value="timeline" className="h-full overflow-y-auto p-0 m-0">
+            <div className="p-4">
+              {timelineLoading ? (
               <div className="animate-pulse space-y-4">
                 {[1, 2, 3].map(i => (
                   <div key={i} className="bg-gray-100 rounded-lg h-20"></div>
@@ -605,7 +610,7 @@ export default function ContextualSidebar({ documentId, projectId }: ContextualS
                   </DialogContent>
                 </Dialog>
               </div>
-            )}
+            </div>
           </TabsContent>
         </div>
       </Tabs>
