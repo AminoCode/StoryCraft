@@ -19,7 +19,7 @@ interface ContextualSidebarProps {
 }
 
 export default function ContextualSidebar({ documentId, projectId }: ContextualSidebarProps) {
-  const [activeTab, setActiveTab] = useState("characters");
+  const [activeTab, setActiveTab] = useState("ai-suggestions");
   const [showNewCharacterDialog, setShowNewCharacterDialog] = useState(false);
   const [showNewLocationDialog, setShowNewLocationDialog] = useState(false);
   const [showNewTimelineDialog, setShowNewTimelineDialog] = useState(false);
@@ -142,40 +142,115 @@ export default function ContextualSidebar({ documentId, projectId }: ContextualS
   };
 
   return (
-    <div className="w-80 bg-white border-l border-gray-200 flex flex-col">
+    <div className="w-80 bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-700 flex flex-col h-full">
       {/* Sidebar Header */}
-      <div className="border-b border-gray-200 p-4">
-        <h2 className="font-semibold text-gray-900">Story Elements</h2>
+      <div className="border-b border-gray-200 dark:border-gray-700 p-4 flex-shrink-0">
+        <h2 className="font-semibold text-gray-900 dark:text-gray-100">Story Elements</h2>
       </div>
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-        <TabsList className="grid w-full grid-cols-3 border-b border-gray-200 rounded-none h-auto bg-transparent">
+        <TabsList className="grid w-full grid-cols-4 border-b border-gray-200 rounded-none h-auto bg-transparent">
+          <TabsTrigger 
+            value="ai-suggestions" 
+            className="flex items-center space-x-1 px-3 py-3 text-sm font-medium data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600"
+          >
+            <Brain size={16} />
+            <span>AI</span>
+          </TabsTrigger>
           <TabsTrigger 
             value="characters" 
-            className="flex items-center space-x-2 px-4 py-3 text-sm font-medium data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600"
+            className="flex items-center space-x-1 px-3 py-3 text-sm font-medium data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600"
           >
             <Users size={16} />
             <span>Characters</span>
           </TabsTrigger>
           <TabsTrigger 
             value="locations"
-            className="flex items-center space-x-2 px-4 py-3 text-sm font-medium data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600"
+            className="flex items-center space-x-1 px-3 py-3 text-sm font-medium data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600"
           >
             <MapPin size={16} />
             <span>Locations</span>
           </TabsTrigger>
           <TabsTrigger 
             value="timeline"
-            className="flex items-center space-x-2 px-4 py-3 text-sm font-medium data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600"
+            className="flex items-center space-x-1 px-3 py-3 text-sm font-medium data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600"
           >
             <Clock size={16} />
             <span>Timeline</span>
           </TabsTrigger>
         </TabsList>
 
-        <div className="flex-1 overflow-y-auto">
-          <TabsContent value="characters" className="p-4 space-y-4 m-0">
+        <div className="flex-1 min-h-0 overflow-hidden">
+          <TabsContent value="ai-suggestions" className="p-4 space-y-4 m-0 h-full overflow-y-auto">
+            <div className="space-y-4">
+              {/* AI Writing Suggestions */}
+              <Card className="bg-gradient-to-br from-purple-50 to-blue-50 border-purple-200">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Brain size={16} className="text-purple-600" />
+                    <h3 className="font-semibold text-purple-900">Writing Suggestions</h3>
+                  </div>
+                  <div className="space-y-3 text-sm">
+                    <div className="p-3 bg-white/70 rounded-lg border border-purple-100">
+                      <div className="font-medium text-purple-800 mb-1">Pacing</div>
+                      <div className="text-purple-700">Consider adding more tension to build toward the climax. The current scene could benefit from shorter, sharper sentences.</div>
+                    </div>
+                    <div className="p-3 bg-white/70 rounded-lg border border-purple-100">
+                      <div className="font-medium text-purple-800 mb-1">Character Development</div>
+                      <div className="text-purple-700">Sarah's motivations could be clearer. Consider adding internal dialogue to show her thought process.</div>
+                    </div>
+                    <div className="p-3 bg-white/70 rounded-lg border border-purple-100">
+                      <div className="font-medium text-purple-800 mb-1">Setting</div>
+                      <div className="text-purple-700">The mansion's atmosphere is strong. Add more sensory details about sounds and smells to enhance immersion.</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Style Improvements */}
+              <Card className="bg-gradient-to-br from-green-50 to-teal-50 border-green-200">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Edit3 size={16} className="text-green-600" />
+                    <h3 className="font-semibold text-green-900">Style Improvements</h3>
+                  </div>
+                  <div className="space-y-3 text-sm">
+                    <div className="p-3 bg-white/70 rounded-lg border border-green-100">
+                      <div className="font-medium text-green-800 mb-1">Word Choice</div>
+                      <div className="text-green-700">"Walked" could be more specific. Consider: "crept," "strode," or "tiptoed" to better convey Sarah's mood.</div>
+                    </div>
+                    <div className="p-3 bg-white/70 rounded-lg border border-green-100">
+                      <div className="font-medium text-green-800 mb-1">Sentence Variety</div>
+                      <div className="text-green-700">Mix sentence lengths for better flow. Some longer, complex sentences followed by short, punchy ones.</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Grammar & Clarity */}
+              <Card className="bg-gradient-to-br from-orange-50 to-red-50 border-orange-200">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <RefreshCw size={16} className="text-orange-600" />
+                    <h3 className="font-semibold text-orange-900">Grammar & Clarity</h3>
+                  </div>
+                  <div className="space-y-3 text-sm">
+                    <div className="p-3 bg-white/70 rounded-lg border border-orange-100">
+                      <div className="font-medium text-orange-800 mb-1">Passive Voice</div>
+                      <div className="text-orange-700">Line 3: "The door was opened" → "She opened the door" for more active writing.</div>
+                    </div>
+                    <div className="p-3 bg-white/70 rounded-lg border border-orange-100">
+                      <div className="font-medium text-orange-800 mb-1">Clarity</div>
+                      <div className="text-orange-700">The pronoun "it" in paragraph 2 is ambiguous. Specify what "it" refers to.</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="characters" className="p-4 space-y-4 m-0 h-full overflow-y-auto">
             {charactersLoading ? (
               <div className="animate-pulse space-y-4">
                 {[1, 2].map(i => (
@@ -310,7 +385,7 @@ export default function ContextualSidebar({ documentId, projectId }: ContextualS
             )}
           </TabsContent>
 
-          <TabsContent value="locations" className="p-4 space-y-4 m-0">
+          <TabsContent value="locations" className="p-4 space-y-4 m-0 h-full overflow-y-auto">
             {locationsLoading ? (
               <div className="animate-pulse space-y-4">
                 {[1, 2].map(i => (
@@ -429,7 +504,7 @@ export default function ContextualSidebar({ documentId, projectId }: ContextualS
             )}
           </TabsContent>
 
-          <TabsContent value="timeline" className="p-4 m-0">
+          <TabsContent value="timeline" className="p-4 m-0 h-full overflow-y-auto">
             {timelineLoading ? (
               <div className="animate-pulse space-y-4">
                 {[1, 2, 3].map(i => (
@@ -536,8 +611,8 @@ export default function ContextualSidebar({ documentId, projectId }: ContextualS
       </Tabs>
 
       {/* Sidebar Footer */}
-      <div className="border-t border-gray-200 p-4">
-        <div className="flex items-center justify-between text-sm text-gray-500">
+      <div className="border-t border-gray-200 dark:border-gray-700 p-4 flex-shrink-0">
+        <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
           <span>AI Auto-Extract: Active</span>
           <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
             <RefreshCw size={14} />
