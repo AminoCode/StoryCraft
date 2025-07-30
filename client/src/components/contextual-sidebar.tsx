@@ -1,11 +1,17 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Users, MapPin, Clock, Brain, RefreshCw, AlertTriangle } from "lucide-react";
-import type { Character, Location, TimelineEvent } from "@shared/schema";
+import { Plus, Users, MapPin, Clock, Edit3, Trash2, RefreshCw, Brain } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { queryClient } from "@/lib/queryClient";
+import type { Character, Location, TimelineEvent, InsertCharacter, InsertLocation, InsertTimelineEvent } from "@shared/schema";
 
 interface ContextualSidebarProps {
   documentId: string;
@@ -14,6 +20,14 @@ interface ContextualSidebarProps {
 
 export default function ContextualSidebar({ documentId, projectId }: ContextualSidebarProps) {
   const [activeTab, setActiveTab] = useState("characters");
+  const [showNewCharacterDialog, setShowNewCharacterDialog] = useState(false);
+  const [showNewLocationDialog, setShowNewLocationDialog] = useState(false);
+  const [showNewTimelineDialog, setShowNewTimelineDialog] = useState(false);
+  const [newCharacter, setNewCharacter] = useState<Partial<InsertCharacter>>({});
+  const [newLocation, setNewLocation] = useState<Partial<InsertLocation>>({});
+  const [newTimelineEvent, setNewTimelineEvent] = useState<Partial<InsertTimelineEvent>>({});
+  
+  const { toast } = useToast();
 
   // Use project-based queries if projectId is provided, otherwise fallback to document-based
   const { data: characters = [], isLoading: charactersLoading } = useQuery<Character[]>({
@@ -27,6 +41,105 @@ export default function ContextualSidebar({ documentId, projectId }: ContextualS
   const { data: timeline = [], isLoading: timelineLoading } = useQuery<TimelineEvent[]>({
     queryKey: projectId ? ["/api/projects", projectId, "timeline"] : ["/api/documents", documentId, "timeline"],
   });
+
+  // Mutations for creating new story elements
+  const createCharacterMutation = useMutation({
+    mutationFn: async (data: InsertCharacter) => {
+      const response = await fetch("/api/characters", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) throw new Error("Failed to create character");
+      return response.json();
+    },
+    onSuccess: () => {
+      const queryKey = projectId ? ["/api/projects", projectId, "characters"] : ["/api/documents", documentId, "characters"];
+      queryClient.invalidateQueries({ queryKey });
+      setShowNewCharacterDialog(false);
+      setNewCharacter({});
+      toast({ title: "Character created", description: "New character added successfully." });
+    },
+  });
+
+  const createLocationMutation = useMutation({
+    mutationFn: async (data: InsertLocation) => {
+      const response = await fetch("/api/locations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) throw new Error("Failed to create location");
+      return response.json();
+    },
+    onSuccess: () => {
+      const queryKey = projectId ? ["/api/projects", projectId, "locations"] : ["/api/documents", documentId, "locations"];
+      queryClient.invalidateQueries({ queryKey });
+      setShowNewLocationDialog(false);
+      setNewLocation({});
+      toast({ title: "Location created", description: "New location added successfully." });
+    },
+  });
+
+  const createTimelineEventMutation = useMutation({
+    mutationFn: async (data: InsertTimelineEvent) => {
+      const response = await fetch("/api/timeline", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) throw new Error("Failed to create timeline event");
+      return response.json();
+    },
+    onSuccess: () => {
+      const queryKey = projectId ? ["/api/projects", projectId, "timeline"] : ["/api/documents", documentId, "timeline"];
+      queryClient.invalidateQueries({ queryKey });
+      setShowNewTimelineDialog(false);
+      setNewTimelineEvent({});
+      toast({ title: "Timeline event created", description: "New timeline event added successfully." });
+    },
+  });
+
+  const handleCreateCharacter = () => {
+    if (newCharacter.name?.trim()) {
+      createCharacterMutation.mutate({
+        name: newCharacter.name,
+        projectId: projectId || "default-project",
+        role: newCharacter.role || null,
+        age: newCharacter.age || null,
+        appearance: newCharacter.appearance || null,
+        traits: newCharacter.traits || null,
+        relationships: newCharacter.relationships || null,
+        lastMentioned: newCharacter.lastMentioned || null,
+      });
+    }
+  };
+
+  const handleCreateLocation = () => {
+    if (newLocation.name?.trim()) {
+      createLocationMutation.mutate({
+        name: newLocation.name,
+        projectId: projectId || "default-project",
+        type: newLocation.type || null,
+        description: newLocation.description || null,
+        keyFeatures: newLocation.keyFeatures || null,
+        firstMentioned: newLocation.firstMentioned || null,
+      });
+    }
+  };
+
+  const handleCreateTimelineEvent = () => {
+    if (newTimelineEvent.title?.trim()) {
+      const nextOrder = Math.max(...timeline.map(e => e.order), 0) + 1;
+      createTimelineEventMutation.mutate({
+        title: newTimelineEvent.title,
+        projectId: projectId || "default-project",
+        chapter: newTimelineEvent.chapter || null,
+        description: newTimelineEvent.description || null,
+        order: nextOrder,
+      });
+    }
+  };
 
   return (
     <div className="w-80 bg-white border-l border-gray-200 flex flex-col">
@@ -112,35 +225,87 @@ export default function ContextualSidebar({ documentId, projectId }: ContextualS
                   </Card>
                 ))}
 
-                {/* New Character Detection */}
-                <Card className="bg-yellow-50 border-2 border-dashed border-yellow-200">
-                  <CardContent className="p-4">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <AlertTriangle className="text-yellow-500" size={16} />
-                      <h3 className="font-semibold text-yellow-700">New Character Detected</h3>
-                    </div>
-                    <p className="text-sm text-yellow-600 mb-3">
-                      AI detected a potential new character: "Mrs. Harrington" mentioned in previous chapters.
-                    </p>
-                    <div className="flex space-x-2">
-                      <Button size="sm" className="h-8 px-3 text-xs bg-yellow-500 hover:bg-yellow-600">
-                        Add Character
-                      </Button>
-                      <Button variant="outline" size="sm" className="h-8 px-3 text-xs">
-                        Ignore
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-
                 {/* Add New Character */}
-                <Button
-                  variant="outline"
-                  className="w-full p-3 border-2 border-dashed border-gray-300 text-gray-500 hover:border-blue-600 hover:text-blue-600"
-                >
-                  <Plus size={16} className="mr-2" />
-                  Add New Character
-                </Button>
+                <Dialog open={showNewCharacterDialog} onOpenChange={setShowNewCharacterDialog}>
+                  <DialogTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full p-3 border-2 border-dashed border-gray-300 text-gray-500 hover:border-blue-600 hover:text-blue-600"
+                    >
+                      <Plus size={16} className="mr-2" />
+                      Add New Character
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Add New Character</DialogTitle>
+                      <DialogDescription>
+                        Create a new character for your story.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div>
+                        <Label htmlFor="character-name">Name *</Label>
+                        <Input
+                          id="character-name"
+                          value={newCharacter.name || ""}
+                          onChange={(e) => setNewCharacter({...newCharacter, name: e.target.value})}
+                          placeholder="Character name..."
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="character-role">Role</Label>
+                        <Input
+                          id="character-role"
+                          value={newCharacter.role || ""}
+                          onChange={(e) => setNewCharacter({...newCharacter, role: e.target.value})}
+                          placeholder="Protagonist, Antagonist, etc."
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="character-age">Age</Label>
+                        <Input
+                          id="character-age"
+                          value={newCharacter.age || ""}
+                          onChange={(e) => setNewCharacter({...newCharacter, age: e.target.value})}
+                          placeholder="Age or age range..."
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="character-appearance">Appearance</Label>
+                        <Textarea
+                          id="character-appearance"
+                          value={newCharacter.appearance || ""}
+                          onChange={(e) => setNewCharacter({...newCharacter, appearance: e.target.value})}
+                          placeholder="Physical description..."
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="character-traits">Personality Traits</Label>
+                        <Textarea
+                          id="character-traits"
+                          value={newCharacter.traits || ""}
+                          onChange={(e) => setNewCharacter({...newCharacter, traits: e.target.value})}
+                          placeholder="Key personality traits..."
+                        />
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button
+                        variant="outline"
+                        onClick={() => setShowNewCharacterDialog(false)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={handleCreateCharacter}
+                        disabled={!newCharacter.name?.trim() || createCharacterMutation.isPending}
+                      >
+                        {createCharacterMutation.isPending ? "Creating..." : "Create Character"}
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </>
             )}
           </TabsContent>
@@ -176,24 +341,90 @@ export default function ContextualSidebar({ documentId, projectId }: ContextualS
                   </Card>
                 ))}
 
-                {/* Current Location Highlight */}
-                <Card className="bg-blue-50 border border-blue-200">
-                  <CardContent className="p-4">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <MapPin className="text-blue-500" size={16} />
-                      <h3 className="font-semibold text-blue-700">Current Scene Location</h3>
-                    </div>
-                    <p className="text-sm text-blue-600">Library - Mentioned 3 times in this chapter</p>
-                  </CardContent>
-                </Card>
+                {/* Current Location Highlight - Only show if there are locations */}
+                {locations.length > 0 && (
+                  <Card className="bg-blue-50 border border-blue-200">
+                    <CardContent className="p-4">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <MapPin className="text-blue-500" size={16} />
+                        <h3 className="font-semibold text-blue-700">Recently Mentioned</h3>
+                      </div>
+                      <p className="text-sm text-blue-600">{locations[0]?.name} - Featured in current writing</p>
+                    </CardContent>
+                  </Card>
+                )}
 
-                <Button
-                  variant="outline"
-                  className="w-full p-3 border-2 border-dashed border-gray-300 text-gray-500 hover:border-blue-600 hover:text-blue-600"
-                >
-                  <Plus size={16} className="mr-2" />
-                  Add New Location
-                </Button>
+                <Dialog open={showNewLocationDialog} onOpenChange={setShowNewLocationDialog}>
+                  <DialogTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full p-3 border-2 border-dashed border-gray-300 text-gray-500 hover:border-blue-600 hover:text-blue-600"
+                    >
+                      <Plus size={16} className="mr-2" />
+                      Add New Location
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Add New Location</DialogTitle>
+                      <DialogDescription>
+                        Create a new location for your story.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div>
+                        <Label htmlFor="location-name">Name *</Label>
+                        <Input
+                          id="location-name"
+                          value={newLocation.name || ""}
+                          onChange={(e) => setNewLocation({...newLocation, name: e.target.value})}
+                          placeholder="Location name..."
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="location-type">Type</Label>
+                        <Input
+                          id="location-type"
+                          value={newLocation.type || ""}
+                          onChange={(e) => setNewLocation({...newLocation, type: e.target.value})}
+                          placeholder="Building, City, Forest, etc."
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="location-description">Description</Label>
+                        <Textarea
+                          id="location-description"
+                          value={newLocation.description || ""}
+                          onChange={(e) => setNewLocation({...newLocation, description: e.target.value})}
+                          placeholder="Describe this location..."
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="location-features">Key Features</Label>
+                        <Textarea
+                          id="location-features"
+                          value={newLocation.keyFeatures || ""}
+                          onChange={(e) => setNewLocation({...newLocation, keyFeatures: e.target.value})}
+                          placeholder="Notable features or landmarks..."
+                        />
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button
+                        variant="outline"
+                        onClick={() => setShowNewLocationDialog(false)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={handleCreateLocation}
+                        disabled={!newLocation.name?.trim() || createLocationMutation.isPending}
+                      >
+                        {createLocationMutation.isPending ? "Creating..." : "Create Location"}
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </>
             )}
           </TabsContent>
@@ -235,27 +466,69 @@ export default function ContextualSidebar({ documentId, projectId }: ContextualS
                   </div>
                 ))}
 
-                {/* AI Insights */}
-                <div className="mt-6 pt-4 border-t border-gray-200">
-                  <h4 className="text-sm font-semibold text-gray-900 mb-3">
-                    <Brain className="inline mr-2 text-blue-600" size={16} />
-                    AI Story Insights
-                  </h4>
-                  <div className="space-y-3">
-                    <Card className="bg-blue-50 border border-blue-200">
-                      <CardContent className="p-3">
-                        <div className="text-xs font-medium text-blue-700 mb-1">Plot Consistency</div>
-                        <div className="text-xs text-blue-600">Timeline is consistent. No contradictions detected.</div>
-                      </CardContent>
-                    </Card>
-                    <Card className="bg-yellow-50 border border-yellow-200">
-                      <CardContent className="p-3">
-                        <div className="text-xs font-medium text-yellow-700 mb-1">Character Development</div>
-                        <div className="text-xs text-yellow-600">Consider showing more of Sarah's background or motivation.</div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </div>
+                {/* Add New Timeline Event */}
+                <Dialog open={showNewTimelineDialog} onOpenChange={setShowNewTimelineDialog}>
+                  <DialogTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full p-3 border-2 border-dashed border-gray-300 text-gray-500 hover:border-blue-600 hover:text-blue-600"
+                    >
+                      <Plus size={16} className="mr-2" />
+                      Add Timeline Event
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Add Timeline Event</DialogTitle>
+                      <DialogDescription>
+                        Add a new event to your story timeline.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div>
+                        <Label htmlFor="event-title">Title *</Label>
+                        <Input
+                          id="event-title"
+                          value={newTimelineEvent.title || ""}
+                          onChange={(e) => setNewTimelineEvent({...newTimelineEvent, title: e.target.value})}
+                          placeholder="Event title..."
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="event-chapter">Chapter</Label>
+                        <Input
+                          id="event-chapter"
+                          value={newTimelineEvent.chapter || ""}
+                          onChange={(e) => setNewTimelineEvent({...newTimelineEvent, chapter: e.target.value})}
+                          placeholder="Chapter name or number..."
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="event-description">Description</Label>
+                        <Textarea
+                          id="event-description"
+                          value={newTimelineEvent.description || ""}
+                          onChange={(e) => setNewTimelineEvent({...newTimelineEvent, description: e.target.value})}
+                          placeholder="Describe what happens in this event..."
+                        />
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button
+                        variant="outline"
+                        onClick={() => setShowNewTimelineDialog(false)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={handleCreateTimelineEvent}
+                        disabled={!newTimelineEvent.title?.trim() || createTimelineEventMutation.isPending}
+                      >
+                        {createTimelineEventMutation.isPending ? "Creating..." : "Add Event"}
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </div>
             )}
           </TabsContent>
