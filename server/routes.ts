@@ -268,13 +268,105 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/ai/analyze", async (req, res) => {
     try {
-      const { text } = req.body;
+      const { text, projectId, autoUpdate = true } = req.body;
       if (!text) {
         return res.status(400).json({ error: "Text is required" });
       }
       
+      // Get writing suggestions
       const suggestions = await writingAssistant.analyzeWriting(text);
-      res.json({ suggestions });
+      
+      // Extract and auto-update story elements if enabled and projectId provided
+      let extractedEntities = null;
+      if (autoUpdate && projectId && text.length > 50) {
+        try {
+          extractedEntities = await writingAssistant.extractEntities(text);
+          
+          // Auto-create characters that don't exist
+          if (extractedEntities.characters?.length > 0) {
+            for (const character of extractedEntities.characters) {
+              const existingCharacters = await storage.getCharactersByProject(projectId);
+              const exists = existingCharacters.some(c => 
+                c.name.toLowerCase() === character.name.toLowerCase()
+              );
+              
+              if (!exists) {
+                await storage.createCharacter({
+                  name: character.name,
+                  projectId,
+                  role: character.role || null,
+                  traits: character.traits || null,
+                  appearance: null,
+                  relationships: null,
+                  lastMentioned: character.context || null,
+                });
+              } else {
+                // Update existing character with new information
+                const existingChar = existingCharacters.find(c => 
+                  c.name.toLowerCase() === character.name.toLowerCase()
+                );
+                if (existingChar && character.traits && !existingChar.traits) {
+                  await storage.updateCharacter(existingChar.id, {
+                    traits: character.traits,
+                    lastMentioned: character.context,
+                  });
+                }
+              }
+            }
+          }
+          
+          // Auto-create locations that don't exist
+          if (extractedEntities.locations?.length > 0) {
+            for (const location of extractedEntities.locations) {
+              const existingLocations = await storage.getLocationsByProject(projectId);
+              const exists = existingLocations.some(l => 
+                l.name.toLowerCase() === location.name.toLowerCase()
+              );
+              
+              if (!exists) {
+                await storage.createLocation({
+                  name: location.name,
+                  projectId,
+                  type: location.type || null,
+                  description: location.description || null,
+                  keyFeatures: null,
+                  firstMentioned: location.context || null,
+                });
+              }
+            }
+          }
+          
+          // Auto-create timeline events for significant events
+          if (extractedEntities.events?.length > 0) {
+            for (const event of extractedEntities.events) {
+              const existingEvents = await storage.getTimelineEventsByProject(projectId);
+              const exists = existingEvents.some(e => 
+                e.title.toLowerCase() === event.title.toLowerCase()
+              );
+              
+              if (!exists) {
+                const nextOrder = Math.max(...existingEvents.map(e => e.order), 0) + 1;
+                await storage.createTimelineEvent({
+                  title: event.title,
+                  projectId,
+                  chapter: null,
+                  description: event.description || null,
+                  order: nextOrder,
+                });
+              }
+            }
+          }
+        } catch (extractError) {
+          console.error('Error extracting/updating entities:', extractError);
+          // Continue with suggestions even if entity extraction fails
+        }
+      }
+      
+      res.json({ 
+        suggestions,
+        extractedEntities: extractedEntities || { characters: [], locations: [], events: [] },
+        autoUpdated: !!extractedEntities 
+      });
     } catch (error) {
       res.status(500).json({ error: "Failed to analyze text" });
     }

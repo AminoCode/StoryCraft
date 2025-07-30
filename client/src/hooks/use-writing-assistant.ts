@@ -49,8 +49,8 @@ export function useWritingAssistant() {
   });
 
   const analyzeTextMutation = useMutation({
-    mutationFn: async (text: string): Promise<AnalysisResult> => {
-      const response = await apiRequest("POST", "/api/ai/analyze", { text });
+    mutationFn: async ({ text, projectId }: { text: string; projectId?: string }): Promise<AnalysisResult & { extractedEntities?: EntityExtractionResult; autoUpdated?: boolean }> => {
+      const response = await apiRequest("POST", "/api/ai/analyze", { text, projectId, autoUpdate: true });
       return response.json();
     },
   });
@@ -75,7 +75,7 @@ export function useWritingAssistant() {
     extractEntities: (text: string) => extractEntitiesMutation.mutateAsync(text),
     generateSynonyms: (word: string, context: string) => 
       generateSynonymsMutation.mutateAsync({ word, context }),
-    analyzeText: (text: string) => analyzeTextMutation.mutateAsync(text),
+    analyzeText: (text: string, projectId?: string) => analyzeTextMutation.mutateAsync({ text, projectId }),
     generateWritingPrompt: (text: string, context?: string) => 
       generateWritingPromptMutation.mutateAsync(text),
     formatDialogue: (text: string) => formatDialogueMutation.mutateAsync(text),

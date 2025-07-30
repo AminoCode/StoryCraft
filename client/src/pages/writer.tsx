@@ -313,6 +313,7 @@ export default function WriterPage() {
               content={content}
               onChange={handleContentChange}
               documentId={chapterId || "default-doc"}
+              projectId={projectId}
             />
           </div>
 

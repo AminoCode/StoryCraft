@@ -538,7 +538,7 @@ export default function ContextualSidebar({ documentId, projectId }: ContextualS
       {/* Sidebar Footer */}
       <div className="border-t border-gray-200 p-4">
         <div className="flex items-center justify-between text-sm text-gray-500">
-          <span>AI Analysis: Active</span>
+          <span>AI Auto-Extract: Active</span>
           <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
             <RefreshCw size={14} />
           </Button>

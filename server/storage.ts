@@ -133,8 +133,10 @@ As she approached the library door, Sarah noticed something peculiar. The doorkn
   async createProject(insertProject: InsertProject): Promise<Project> {
     const id = randomUUID();
     const project: Project = {
-      ...insertProject,
       id,
+      title: insertProject.title,
+      description: insertProject.description || null,
+      genre: insertProject.genre || null,
       lastOpened: new Date(),
       createdAt: new Date(),
     };

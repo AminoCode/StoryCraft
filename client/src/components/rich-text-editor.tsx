@@ -7,6 +7,7 @@ interface RichTextEditorProps {
   content: string;
   onChange: (content: string) => void;
   documentId: string;
+  projectId?: string;
 }
 
 interface AiSuggestion {
@@ -17,7 +18,7 @@ interface AiSuggestion {
   reason?: string;
 }
 
-export default function RichTextEditor({ content, onChange, documentId }: RichTextEditorProps) {
+export default function RichTextEditor({ content, onChange, documentId, projectId }: RichTextEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
   const [showPrompt, setShowPrompt] = useState(false);
   const [writingPrompt, setWritingPrompt] = useState("");
@@ -45,9 +46,20 @@ export default function RichTextEditor({ content, onChange, documentId }: RichTe
 
   const analyzeSuggestions = async (text: string) => {
     try {
-      const result = await analyzeText(text);
+      const result = await analyzeText(text, projectId);
       if (result?.suggestions) {
         setSuggestions(result.suggestions);
+      }
+      
+      // If entities were auto-updated, refresh the sidebar data
+      if (result?.autoUpdated && projectId) {
+        // Import queryClient to invalidate story element queries
+        const { queryClient } = await import("@/lib/queryClient");
+        
+        // Invalidate all story element queries for this project
+        queryClient.invalidateQueries({ queryKey: ["/api/projects", projectId, "characters"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/projects", projectId, "locations"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/projects", projectId, "timeline"] });
       }
     } catch (error) {
       console.error('Error analyzing text:', error);
