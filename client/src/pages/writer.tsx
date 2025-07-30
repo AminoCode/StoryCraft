@@ -14,6 +14,7 @@ import RichTextEditor from "@/components/rich-text-editor";
 import ContextualSidebar from "@/components/contextual-sidebar";
 import AiModal from "@/components/ai-modal";
 import ExportModal from "@/components/export-modal";
+import ThesaurusModal from "@/components/thesaurus-modal";
 import { useWritingAssistant } from "@/hooks/use-writing-assistant";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
@@ -28,6 +29,7 @@ export default function WriterPage() {
   const [showAiModal, setShowAiModal] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
   const [showNewChapterDialog, setShowNewChapterDialog] = useState(false);
+  const [showThesaurusModal, setShowThesaurusModal] = useState(false);
   const [content, setContent] = useState("");
   const [wordCount, setWordCount] = useState(0);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
@@ -150,6 +152,10 @@ export default function WriterPage() {
     }
   };
 
+  const handleThesaurus = () => {
+    setShowThesaurusModal(true);
+  };
+
   // Auto-save functionality
   useEffect(() => {
     if (!chapterId || !currentChapter) return;
@@ -179,6 +185,7 @@ export default function WriterPage() {
         onAiSuggestions={handleAiSuggestions}
         onExport={handleExport}
         onFormatDialogue={handleFormatDialogue}
+        onThesaurus={handleThesaurus}
       />
       
       {/* Project Navigation Header */}
@@ -335,6 +342,11 @@ export default function WriterPage() {
         isOpen={showExportModal}
         onClose={() => setShowExportModal(false)}
         document={currentChapter || document}
+      />
+
+      <ThesaurusModal
+        isOpen={showThesaurusModal}
+        onClose={() => setShowThesaurusModal(false)}
       />
     </div>
   );

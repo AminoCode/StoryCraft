@@ -188,6 +188,67 @@ export class WritingAssistantService {
       return text;
     }
   }
+
+  async getThesaurusData(word: string): Promise<{
+    word: string;
+    synonyms: string[];
+    antonyms: string[];
+    definitions: string[];
+  }> {
+    try {
+      const response = await this.openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          {
+            role: "system",
+            content: `You are a thesaurus and dictionary assistant. For the given word, provide:
+            1. Synonyms (words with similar meaning) - up to 12 most relevant ones
+            2. Antonyms (words with opposite meaning) - up to 8 most relevant ones
+            3. Definitions (clear, concise meanings) - up to 3 most common definitions
+            
+            Respond with a JSON object in this exact format:
+            {
+              "word": "the input word",
+              "synonyms": ["synonym1", "synonym2", ...],
+              "antonyms": ["antonym1", "antonym2", ...],
+              "definitions": ["definition1", "definition2", ...]
+            }
+            
+            Ensure all arrays are properly formatted and contain only strings.`
+          },
+          {
+            role: "user",
+            content: word
+          }
+        ],
+      });
+
+      const content = response.choices[0].message.content;
+      if (!content) {
+        throw new Error('No response content');
+      }
+
+      // Parse the JSON response
+      const thesaurusData = JSON.parse(content);
+      
+      // Validate the response structure
+      return {
+        word: thesaurusData.word || word,
+        synonyms: Array.isArray(thesaurusData.synonyms) ? thesaurusData.synonyms : [],
+        antonyms: Array.isArray(thesaurusData.antonyms) ? thesaurusData.antonyms : [],
+        definitions: Array.isArray(thesaurusData.definitions) ? thesaurusData.definitions : []
+      };
+    } catch (error) {
+      console.error('Error getting thesaurus data:', error);
+      // Return empty structure if API fails
+      return {
+        word,
+        synonyms: [],
+        antonyms: [],
+        definitions: []
+      };
+    }
+  }
 }
 
 export const writingAssistant = new WritingAssistantService();

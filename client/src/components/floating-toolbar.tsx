@@ -17,12 +17,14 @@ interface FloatingToolbarProps {
   onAiSuggestions: () => void;
   onExport: () => void;
   onFormatDialogue: () => void;
+  onThesaurus: () => void;
 }
 
 export default function FloatingToolbar({ 
   onAiSuggestions, 
   onExport, 
-  onFormatDialogue 
+  onFormatDialogue,
+  onThesaurus 
 }: FloatingToolbarProps) {
   const handleFormatting = (command: string) => {
     document.execCommand(command, false);
@@ -116,6 +118,7 @@ export default function FloatingToolbar({
             variant="ghost"
             size="sm"
             className="w-10 h-10 p-0 rounded-lg hover:bg-gray-100 text-gray-600 hover:text-blue-600"
+            onClick={onThesaurus}
           >
             <Book size={16} />
           </Button>

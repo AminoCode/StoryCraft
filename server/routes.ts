@@ -433,6 +433,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/thesaurus/:word", async (req, res) => {
+    try {
+      const { word } = req.params;
+      if (!word) {
+        return res.status(400).json({ error: "Word is required" });
+      }
+      
+      const thesaurusData = await writingAssistant.getThesaurusData(word.toLowerCase());
+      res.json(thesaurusData);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get thesaurus data" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
