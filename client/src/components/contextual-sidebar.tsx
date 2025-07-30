@@ -175,16 +175,17 @@ export default function ContextualSidebar({ documentId, projectId }: ContextualS
         </TabsList>
 
         <div className="flex-1 overflow-hidden">
-          <TabsContent value="characters" className="h-full overflow-y-auto p-4 space-y-4 m-0 data-[state=active]:flex data-[state=active]:flex-col">
-            {charactersLoading ? (
-              <div className="animate-pulse space-y-4">
-                {[1, 2].map(i => (
-                  <div key={i} className="bg-muted rounded-lg h-32"></div>
-                ))}
-              </div>
-            ) : (
-              <>
-                {characters.map((character) => (
+          <div className={`${activeTab === 'characters' ? 'block' : 'hidden'} h-full overflow-y-auto p-4`}>
+            <div className="space-y-4">
+              {charactersLoading ? (
+                <div className="animate-pulse space-y-4">
+                  {[1, 2].map(i => (
+                    <div key={i} className="bg-muted rounded-lg h-32"></div>
+                  ))}
+                </div>
+              ) : (
+                <>
+                  {characters.map((character) => (
                   <Card key={character.id} className="bg-card border-border">
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between mb-3">
@@ -306,20 +307,22 @@ export default function ContextualSidebar({ documentId, projectId }: ContextualS
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
-              </>
-            )}
-          </TabsContent>
+                </>
+              )}
+            </div>
+          </div>
 
-          <TabsContent value="locations" className="h-full overflow-y-auto p-4 space-y-4 m-0 data-[state=active]:flex data-[state=active]:flex-col">
-            {locationsLoading ? (
-              <div className="animate-pulse space-y-4">
-                {[1, 2].map(i => (
-                  <div key={i} className="bg-muted rounded-lg h-32"></div>
-                ))}
-              </div>
-            ) : (
-              <>
-                {locations.map((location) => (
+          <div className={`${activeTab === 'locations' ? 'block' : 'hidden'} h-full overflow-y-auto p-4`}>
+            <div className="space-y-4">
+              {locationsLoading ? (
+                <div className="animate-pulse space-y-4">
+                  {[1, 2].map(i => (
+                    <div key={i} className="bg-muted rounded-lg h-32"></div>
+                  ))}
+                </div>
+              ) : (
+                <>
+                  {locations.map((location) => (
                   <Card key={location.id} className="bg-card border-border">
                     <CardContent className="p-4">
                       <h3 className="font-semibold text-foreground mb-3">{location.name}</h3>
@@ -425,19 +428,21 @@ export default function ContextualSidebar({ documentId, projectId }: ContextualS
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
-              </>
-            )}
-          </TabsContent>
+                </>
+              )}
+            </div>
+          </div>
 
-          <TabsContent value="timeline" className="h-full overflow-y-auto p-4 m-0 data-[state=active]:flex data-[state=active]:flex-col">
-            {timelineLoading ? (
-              <div className="animate-pulse space-y-4">
-                {[1, 2, 3].map(i => (
-                  <div key={i} className="bg-muted rounded-lg h-20"></div>
-                ))}
-              </div>
-            ) : (
-              <div className="space-y-4 flex-1 overflow-y-auto">
+          <div className={`${activeTab === 'timeline' ? 'block' : 'hidden'} h-full overflow-y-auto p-4`}>
+            <div className="space-y-4">
+              {timelineLoading ? (
+                <div className="animate-pulse space-y-4">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="bg-muted rounded-lg h-20"></div>
+                  ))}
+                </div>
+              ) : (
+                <>
                 {timeline.map((event, index) => (
                   <div key={event.id} className="flex">
                     <div className="flex flex-col items-center mr-4">
@@ -529,9 +534,10 @@ export default function ContextualSidebar({ documentId, projectId }: ContextualS
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
-              </div>
-            )}
-          </TabsContent>
+                </>
+              )}
+            </div>
+          </div>
         </div>
       </Tabs>
 
