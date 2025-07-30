@@ -63,24 +63,24 @@ export default function AiModal({ isOpen, onClose, content }: AiModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-96 max-w-90vw">
-        <DialogHeader>
+      <DialogContent className="w-96 max-w-90vw max-h-[80vh] flex flex-col">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle className="flex items-center space-x-2">
             <Wand2 className="text-blue-600" size={20} />
             <span>AI Writing Assistant</span>
           </DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-4">
+        <div className="flex-1 overflow-hidden">
           {isLoading ? (
             <div className="flex items-center justify-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
             </div>
           ) : (
-            <>
-              <div>
+            <div className="h-full flex flex-col space-y-4">
+              <div className="flex-1 overflow-y-auto">
                 <h4 className="font-medium text-gray-900 mb-3">Suggested Improvements:</h4>
-                <div className="space-y-3">
+                <div className="space-y-3 pr-2">
                   {suggestions.map((suggestion, index) => (
                     <Card key={index} className={`border ${
                       suggestion.type === 'description' ? 'border-blue-200 bg-blue-50' :
@@ -108,7 +108,7 @@ export default function AiModal({ isOpen, onClose, content }: AiModalProps) {
                 </div>
               </div>
               
-              <div className="flex justify-end space-x-3 pt-4">
+              <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200 flex-shrink-0">
                 <Button variant="outline" onClick={onClose}>
                   Later
                 </Button>
@@ -119,7 +119,7 @@ export default function AiModal({ isOpen, onClose, content }: AiModalProps) {
                   Apply Suggestions
                 </Button>
               </div>
-            </>
+            </div>
           )}
         </div>
       </DialogContent>

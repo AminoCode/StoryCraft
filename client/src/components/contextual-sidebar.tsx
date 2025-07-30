@@ -142,15 +142,15 @@ export default function ContextualSidebar({ documentId, projectId }: ContextualS
   };
 
   return (
-    <div className="w-80 bg-white border-l border-gray-200 flex flex-col">
+    <div className="w-80 bg-white border-l border-gray-200 flex flex-col h-full">
       {/* Sidebar Header */}
-      <div className="border-b border-gray-200 p-4">
+      <div className="border-b border-gray-200 p-4 flex-shrink-0">
         <h2 className="font-semibold text-gray-900">Story Elements</h2>
       </div>
 
       {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-        <TabsList className="grid w-full grid-cols-3 border-b border-gray-200 rounded-none h-auto bg-transparent">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
+        <TabsList className="grid w-full grid-cols-3 border-b border-gray-200 rounded-none h-auto bg-transparent flex-shrink-0">
           <TabsTrigger 
             value="characters" 
             className="flex items-center space-x-2 px-4 py-3 text-sm font-medium data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600"
@@ -174,8 +174,8 @@ export default function ContextualSidebar({ documentId, projectId }: ContextualS
           </TabsTrigger>
         </TabsList>
 
-        <div className="flex-1 overflow-y-auto">
-          <TabsContent value="characters" className="p-4 space-y-4 m-0">
+        <div className="flex-1 overflow-hidden">
+          <TabsContent value="characters" className="h-full overflow-y-auto p-4 space-y-4 m-0">
             {charactersLoading ? (
               <div className="animate-pulse space-y-4">
                 {[1, 2].map(i => (
@@ -310,7 +310,7 @@ export default function ContextualSidebar({ documentId, projectId }: ContextualS
             )}
           </TabsContent>
 
-          <TabsContent value="locations" className="p-4 space-y-4 m-0">
+          <TabsContent value="locations" className="h-full overflow-y-auto p-4 space-y-4 m-0">
             {locationsLoading ? (
               <div className="animate-pulse space-y-4">
                 {[1, 2].map(i => (
@@ -429,7 +429,7 @@ export default function ContextualSidebar({ documentId, projectId }: ContextualS
             )}
           </TabsContent>
 
-          <TabsContent value="timeline" className="p-4 m-0">
+          <TabsContent value="timeline" className="h-full overflow-y-auto p-4 m-0">
             {timelineLoading ? (
               <div className="animate-pulse space-y-4">
                 {[1, 2, 3].map(i => (
@@ -536,7 +536,7 @@ export default function ContextualSidebar({ documentId, projectId }: ContextualS
       </Tabs>
 
       {/* Sidebar Footer */}
-      <div className="border-t border-gray-200 p-4">
+      <div className="border-t border-gray-200 p-4 flex-shrink-0">
         <div className="flex items-center justify-between text-sm text-gray-500">
           <span>AI Auto-Extract: Active</span>
           <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
