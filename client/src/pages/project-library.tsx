@@ -55,13 +55,8 @@ export default function ProjectLibrary() {
 
   const createProjectMutation = useMutation({
     mutationFn: async (data: InsertProject) => {
-      const response = await fetch("/api/projects", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      if (!response.ok) throw new Error("Failed to create project");
-      return response.json();
+      const response = await apiRequest("POST", "/api/projects", data);
+      return await response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/projects"] });
@@ -83,11 +78,8 @@ export default function ProjectLibrary() {
 
   const deleteProjectMutation = useMutation({
     mutationFn: async (id: string) => {
-      const response = await fetch(`/api/projects/${id}`, {
-        method: "DELETE",
-      });
-      if (!response.ok) throw new Error("Failed to delete project");
-      return response.json();
+      const response = await apiRequest("DELETE", `/api/projects/${id}`);
+      return await response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/projects"] });
