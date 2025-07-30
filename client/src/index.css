@@ -26,30 +26,34 @@
 }
 
 .dark {
-  --background: hsl(240, 10%, 3.9%);
-  --foreground: hsl(0, 0%, 98%);
-  --muted: hsl(240, 3.7%, 15.9%);
-  --muted-foreground: hsl(240, 5%, 64.9%);
-  --popover: hsl(240, 10%, 3.9%);
-  --popover-foreground: hsl(0, 0%, 98%);
-  --card: hsl(240, 10%, 3.9%);
-  --card-foreground: hsl(0, 0%, 98%);
-  --border: hsl(240, 3.7%, 15.9%);
-  --input: hsl(240, 3.7%, 15.9%);
-  --primary: hsl(0, 0%, 98%);
-  --primary-foreground: hsl(240, 5.9%, 10%);
-  --secondary: hsl(240, 3.7%, 15.9%);
-  --secondary-foreground: hsl(0, 0%, 98%);
-  --accent: hsl(207, 90%, 54%);
-  --accent-foreground: hsl(0, 0%, 98%);
-  --destructive: hsl(0, 62.8%, 30.6%);
-  --destructive-foreground: hsl(0, 0%, 98%);
-  --ring: hsl(240, 4.9%, 83.9%);
+  --background: hsl(222, 22%, 8%);
+  --foreground: hsl(210, 40%, 98%);
+  --muted: hsl(217, 19%, 18%);
+  --muted-foreground: hsl(215, 20%, 65%);
+  --popover: hsl(222, 22%, 10%);
+  --popover-foreground: hsl(210, 40%, 98%);
+  --card: hsl(222, 22%, 10%);
+  --card-foreground: hsl(210, 40%, 98%);
+  --border: hsl(217, 19%, 18%);
+  --input: hsl(217, 19%, 18%);
+  --primary: hsl(217, 91%, 60%);
+  --primary-foreground: hsl(222, 84%, 5%);
+  --secondary: hsl(217, 19%, 18%);
+  --secondary-foreground: hsl(210, 40%, 98%);
+  --accent: hsl(217, 91%, 60%);
+  --accent-foreground: hsl(222, 84%, 5%);
+  --destructive: hsl(0, 63%, 31%);
+  --destructive-foreground: hsl(210, 40%, 98%);
+  --ring: hsl(224, 71%, 4%);
 }
 
 @layer base {
   * {
     @apply border-border;
+  }
+
+  html {
+    @apply dark;
   }
 
   body {
@@ -60,6 +64,22 @@
   .prose {
     font-family: 'Georgia', serif;
   }
+}
+
+/* Rich Text Editor with scrolling */
+.rich-text-editor {
+  height: calc(100vh - 180px);
+  overflow-y: auto;
+  padding: 2rem;
+  font-family: 'Georgia', serif;
+  font-size: 16px;
+  line-height: 1.8;
+}
+
+.rich-text-editor:focus {
+  outline: none;
+  border: 2px solid hsl(var(--primary));
+  border-radius: 8px;
 }
 
 /* Custom scrollbar */

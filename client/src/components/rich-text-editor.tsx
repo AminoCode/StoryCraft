@@ -98,11 +98,11 @@ export default function RichTextEditor({ content, onChange, documentId, projectI
   };
 
   return (
-    <div className="h-full p-8 overflow-y-auto">
-      <div className="max-w-4xl mx-auto">
+    <div className="h-full bg-background">
+      <div className="max-w-none h-full">
         <div
           ref={editorRef}
-          className="prose prose-lg prose-gray max-w-none font-serif leading-relaxed min-h-96 focus:outline-none"
+          className="rich-text-editor prose dark:prose-invert max-w-none font-serif leading-relaxed min-h-96 focus:outline-none bg-background text-foreground"
           contentEditable
           onInput={handleInput}
           style={{ fontSize: '18px', lineHeight: '1.7' }}

@@ -6,19 +6,37 @@ import {
   type Location, 
   type TimelineEvent, 
   type AiSuggestion,
+  type User,
   type InsertProject,
   type InsertChapter,
   type InsertDocument, 
   type InsertCharacter, 
   type InsertLocation, 
   type InsertTimelineEvent, 
-  type InsertAiSuggestion 
+  type InsertAiSuggestion,
+  type UpsertUser,
+  users,
+  projects,
+  chapters,
+  documents,
+  characters,
+  locations,
+  timelineEvents,
+  aiSuggestions,
 } from "@shared/schema";
+import { db } from "./db";
+import { eq, desc } from "drizzle-orm";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
+  // User operations
+  // (IMPORTANT) these user operations are mandatory for Replit Auth.
+  getUser(id: string): Promise<User | undefined>;
+  upsertUser(user: UpsertUser): Promise<User>;
+  
   // Project operations
   getAllProjects(): Promise<Project[]>;
+  getProjectsByUser(userId: string): Promise<Project[]>;
   getProject(id: string): Promise<Project | undefined>;
   createProject(project: InsertProject): Promise<Project>;
   updateProject(id: string, updates: Partial<Project>): Promise<Project | undefined>;
@@ -62,7 +80,275 @@ export interface IStorage {
   deleteAiSuggestion(id: string): Promise<boolean>;
 }
 
+export class DatabaseStorage implements IStorage {
+  // User operations
+  // (IMPORTANT) these user operations are mandatory for Replit Auth.
+
+  async getUser(id: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
+  }
+
+  async upsertUser(userData: UpsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(userData)
+      .onConflictDoUpdate({
+        target: users.id,
+        set: {
+          ...userData,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+    return user;
+  }
+
+  // Project operations
+  async getAllProjects(): Promise<Project[]> {
+    return await db.select().from(projects).orderBy(desc(projects.lastOpened));
+  }
+
+  async getProjectsByUser(userId: string): Promise<Project[]> {
+    return await db.select().from(projects)
+      .where(eq(projects.userId, userId))
+      .orderBy(desc(projects.lastOpened));
+  }
+
+  async getProject(id: string): Promise<Project | undefined> {
+    const [project] = await db.select().from(projects).where(eq(projects.id, id));
+    return project;
+  }
+
+  async createProject(insertProject: InsertProject): Promise<Project> {
+    const [project] = await db
+      .insert(projects)
+      .values({
+        ...insertProject,
+        lastOpened: new Date(),
+      })
+      .returning();
+    return project;
+  }
+
+  async updateProject(id: string, updates: Partial<Project>): Promise<Project | undefined> {
+    const [project] = await db
+      .update(projects)
+      .set({ ...updates, lastOpened: new Date() })
+      .where(eq(projects.id, id))
+      .returning();
+    return project;
+  }
+
+  async deleteProject(id: string): Promise<boolean> {
+    const result = await db.delete(projects).where(eq(projects.id, id));
+    return result.count > 0;
+  }
+
+  // Chapter operations
+  async getChaptersByProject(projectId: string): Promise<Chapter[]> {
+    return await db.select().from(chapters)
+      .where(eq(chapters.projectId, projectId))
+      .orderBy(chapters.order);
+  }
+
+  async getChapter(id: string): Promise<Chapter | undefined> {
+    const [chapter] = await db.select().from(chapters).where(eq(chapters.id, id));
+    return chapter;
+  }
+
+  async createChapter(insertChapter: InsertChapter): Promise<Chapter> {
+    const [chapter] = await db
+      .insert(chapters)
+      .values(insertChapter)
+      .returning();
+    return chapter;
+  }
+
+  async updateChapter(id: string, updates: Partial<Chapter>): Promise<Chapter | undefined> {
+    const [chapter] = await db
+      .update(chapters)
+      .set({ ...updates, lastSaved: new Date() })
+      .where(eq(chapters.id, id))
+      .returning();
+    return chapter;
+  }
+
+  async deleteChapter(id: string): Promise<boolean> {
+    const result = await db.delete(chapters).where(eq(chapters.id, id));
+    return result.count > 0;
+  }
+
+  // Document operations (for compatibility)
+  async getDocument(id: string): Promise<Document | undefined> {
+    const [document] = await db.select().from(documents).where(eq(documents.id, id));
+    return document;
+  }
+
+  async createDocument(insertDocument: InsertDocument): Promise<Document> {
+    const [document] = await db
+      .insert(documents)
+      .values(insertDocument)
+      .returning();
+    return document;
+  }
+
+  async updateDocument(id: string, updates: Partial<Document>): Promise<Document | undefined> {
+    const [document] = await db
+      .update(documents)
+      .set({ ...updates, lastSaved: new Date() })
+      .where(eq(documents.id, id))
+      .returning();
+    return document;
+  }
+
+  async deleteDocument(id: string): Promise<boolean> {
+    const result = await db.delete(documents).where(eq(documents.id, id));
+    return result.count > 0;
+  }
+
+  // Character operations
+  async getCharactersByProject(projectId: string): Promise<Character[]> {
+    return await db.select().from(characters)
+      .where(eq(characters.projectId, projectId));
+  }
+
+  async createCharacter(insertCharacter: InsertCharacter): Promise<Character> {
+    const [character] = await db
+      .insert(characters)
+      .values(insertCharacter)
+      .returning();
+    return character;
+  }
+
+  async updateCharacter(id: string, updates: Partial<Character>): Promise<Character | undefined> {
+    const [character] = await db
+      .update(characters)
+      .set(updates)
+      .where(eq(characters.id, id))
+      .returning();
+    return character;
+  }
+
+  async deleteCharacter(id: string): Promise<boolean> {
+    const result = await db.delete(characters).where(eq(characters.id, id));
+    return result.count > 0;
+  }
+
+  // Location operations
+  async getLocationsByProject(projectId: string): Promise<Location[]> {
+    return await db.select().from(locations)
+      .where(eq(locations.projectId, projectId));
+  }
+
+  async createLocation(insertLocation: InsertLocation): Promise<Location> {
+    const [location] = await db
+      .insert(locations)
+      .values(insertLocation)
+      .returning();
+    return location;
+  }
+
+  async updateLocation(id: string, updates: Partial<Location>): Promise<Location | undefined> {
+    const [location] = await db
+      .update(locations)
+      .set(updates)
+      .where(eq(locations.id, id))
+      .returning();
+    return location;
+  }
+
+  async deleteLocation(id: string): Promise<boolean> {
+    const result = await db.delete(locations).where(eq(locations.id, id));
+    return result.count > 0;
+  }
+
+  // Timeline operations
+  async getTimelineEventsByProject(projectId: string): Promise<TimelineEvent[]> {
+    return await db.select().from(timelineEvents)
+      .where(eq(timelineEvents.projectId, projectId))
+      .orderBy(timelineEvents.order);
+  }
+
+  async createTimelineEvent(insertEvent: InsertTimelineEvent): Promise<TimelineEvent> {
+    const [event] = await db
+      .insert(timelineEvents)
+      .values(insertEvent)
+      .returning();
+    return event;
+  }
+
+  async updateTimelineEvent(id: string, updates: Partial<TimelineEvent>): Promise<TimelineEvent | undefined> {
+    const [event] = await db
+      .update(timelineEvents)
+      .set(updates)
+      .where(eq(timelineEvents.id, id))
+      .returning();
+    return event;
+  }
+
+  async deleteTimelineEvent(id: string): Promise<boolean> {
+    const result = await db.delete(timelineEvents).where(eq(timelineEvents.id, id));
+    return result.count > 0;
+  }
+
+  // AI Suggestions operations
+  async getAiSuggestionsByProject(projectId: string): Promise<AiSuggestion[]> {
+    return await db.select().from(aiSuggestions)
+      .where(eq(aiSuggestions.projectId, projectId));
+  }
+
+  async createAiSuggestion(insertSuggestion: InsertAiSuggestion): Promise<AiSuggestion> {
+    const [suggestion] = await db
+      .insert(aiSuggestions)
+      .values(insertSuggestion)
+      .returning();
+    return suggestion;
+  }
+
+  async updateAiSuggestion(id: string, updates: Partial<AiSuggestion>): Promise<AiSuggestion | undefined> {
+    const [suggestion] = await db
+      .update(aiSuggestions)
+      .set(updates)
+      .where(eq(aiSuggestions.id, id))
+      .returning();
+    return suggestion;
+  }
+
+  async deleteAiSuggestion(id: string): Promise<boolean> {
+    const result = await db.delete(aiSuggestions).where(eq(aiSuggestions.id, id));
+    return result.count > 0;
+  }
+}
+
 export class MemStorage implements IStorage {
+  // User operations
+  // (IMPORTANT) these user operations are mandatory for Replit Auth.
+  async getUser(id: string): Promise<User | undefined> {
+    // Mock implementation for development
+    return {
+      id,
+      email: "user@example.com",
+      firstName: "Test",
+      lastName: "User",
+      profileImageUrl: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+  }
+
+  async upsertUser(userData: UpsertUser): Promise<User> {
+    return {
+      id: userData.id || randomUUID(),
+      email: userData.email || null,
+      firstName: userData.firstName || null,
+      lastName: userData.lastName || null,
+      profileImageUrl: userData.profileImageUrl || null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+  }
+  
   private projects: Map<string, Project>;
   private chapters: Map<string, Chapter>;
   private documents: Map<string, Document>;
@@ -124,6 +410,14 @@ As she approached the library door, Sarah noticed something peculiar. The doorkn
     return Array.from(this.projects.values()).sort((a, b) => 
       new Date(b.lastOpened || 0).getTime() - new Date(a.lastOpened || 0).getTime()
     );
+  }
+
+  async getProjectsByUser(userId: string): Promise<Project[]> {
+    return Array.from(this.projects.values())
+      .filter(project => (project as any).userId === userId)
+      .sort((a, b) => 
+        new Date(b.lastOpened || 0).getTime() - new Date(a.lastOpened || 0).getTime()
+      );
   }
 
   async getProject(id: string): Promise<Project | undefined> {
@@ -365,4 +659,4 @@ As she approached the library door, Sarah noticed something peculiar. The doorkn
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();

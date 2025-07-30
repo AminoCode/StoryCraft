@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { writingAssistant } from "./services/writing-assistant";
+import { setupAuth, isAuthenticated } from "./replitAuth";
 import { 
   insertProjectSchema,
   insertChapterSchema,
@@ -12,10 +13,26 @@ import {
 } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Project routes
-  app.get("/api/projects", async (req, res) => {
+  // Auth middleware
+  await setupAuth(app);
+
+  // Auth routes
+  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
-      const projects = await storage.getAllProjects();
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      res.json(user);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
+  // Project routes
+  app.get("/api/projects", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const projects = await storage.getProjectsByUser(userId);
       res.json(projects);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch projects" });
@@ -34,9 +51,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/projects", async (req, res) => {
+  app.post("/api/projects", isAuthenticated, async (req: any, res) => {
     try {
-      const parsed = insertProjectSchema.parse(req.body);
+      const userId = req.user.claims.sub;
+      const parsed = insertProjectSchema.parse({
+        ...req.body,
+        userId,
+      });
       const project = await storage.createProject(parsed);
       res.json(project);
     } catch (error) {
