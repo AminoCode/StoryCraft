@@ -114,13 +114,8 @@ export default function ProjectLibrary() {
       return;
     }
     
-    const projectData = {
-      ...data,
-      userId: user.id,
-    };
-    
-    console.log("Creating project with data:", projectData);
-    createProjectMutation.mutate(projectData);
+    console.log("Creating project with data:", data);
+    createProjectMutation.mutate(data);
   };
 
   const handleDeleteProject = (id: string) => {
