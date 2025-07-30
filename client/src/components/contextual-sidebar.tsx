@@ -181,9 +181,9 @@ export default function ContextualSidebar({ documentId, projectId }: ContextualS
           </TabsTrigger>
         </TabsList>
 
-        <div className="flex-1 min-h-0">
-          <TabsContent value="ai-suggestions" className="h-full overflow-y-auto p-0 m-0">
-            <div className="p-4 space-y-4">
+        <div className="flex-1 min-h-0 overflow-hidden">
+          <TabsContent value="ai-suggestions" className="h-full overflow-y-auto p-0 m-0 data-[state=active]:flex data-[state=active]:flex-col">
+            <div className="p-4 space-y-4 flex-1 overflow-y-auto">
               {/* AI Writing Suggestions */}
               <Card className="bg-gradient-to-br from-purple-50 to-blue-50 border-purple-200">
                 <CardContent className="p-4">
@@ -250,8 +250,8 @@ export default function ContextualSidebar({ documentId, projectId }: ContextualS
             </div>
           </TabsContent>
 
-          <TabsContent value="characters" className="h-full overflow-y-auto p-0 m-0">
-            <div className="p-4 space-y-4">
+          <TabsContent value="characters" className="h-full overflow-y-auto p-0 m-0 data-[state=active]:flex data-[state=active]:flex-col">
+            <div className="p-4 space-y-4 flex-1 overflow-y-auto">
               {charactersLoading ? (
                 <div className="animate-pulse space-y-4">
                   {[1, 2].map(i => (
@@ -387,8 +387,8 @@ export default function ContextualSidebar({ documentId, projectId }: ContextualS
             </div>
           </TabsContent>
 
-          <TabsContent value="locations" className="h-full overflow-y-auto p-0 m-0">
-            <div className="p-4 space-y-4">
+          <TabsContent value="locations" className="h-full overflow-y-auto p-0 m-0 data-[state=active]:flex data-[state=active]:flex-col">
+            <div className="p-4 space-y-4 flex-1 overflow-y-auto">
               {locationsLoading ? (
                 <div className="animate-pulse space-y-4">
                   {[1, 2].map(i => (
@@ -508,8 +508,8 @@ export default function ContextualSidebar({ documentId, projectId }: ContextualS
             </div>
           </TabsContent>
 
-          <TabsContent value="timeline" className="h-full overflow-y-auto p-0 m-0">
-            <div className="p-4">
+          <TabsContent value="timeline" className="h-full overflow-y-auto p-0 m-0 data-[state=active]:flex data-[state=active]:flex-col">
+            <div className="p-4 flex-1 overflow-y-auto">
               {timelineLoading ? (
                 <div className="animate-pulse space-y-4">
                   {[1, 2, 3].map(i => (
