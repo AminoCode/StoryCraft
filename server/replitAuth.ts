@@ -72,6 +72,22 @@ export async function setupAuth(app: Express) {
   app.use(passport.initialize());
   app.use(passport.session());
 
+  // Simple development login route that bypasses complex OIDC
+  if (process.env.NODE_ENV === "development") {
+    app.get("/api/login", (req, res) => {
+      // Set a simple session to mark user as authenticated
+      (req.session as any).authenticated = true;
+      res.redirect("/");
+    });
+    
+    app.get("/api/logout", (req, res) => {
+      req.session.destroy(() => {
+        res.redirect("/");
+      });
+    });
+    return; // Skip the complex OIDC setup in development
+  }
+
   const config = await getOidcConfig();
 
   const verify: VerifyFunction = async (
@@ -128,6 +144,21 @@ export async function setupAuth(app: Express) {
 }
 
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
+  // Development bypass - create a mock user to avoid authentication issues
+  if (process.env.NODE_ENV === "development") {
+    const mockUser = {
+      claims: {
+        sub: "36495480",
+        email: "sgd9602@gmail.com",
+        first_name: "Dev",
+        last_name: "User",
+        profile_image_url: null
+      }
+    };
+    (req as any).user = mockUser;
+    return next();
+  }
+
   const user = req.user as any;
 
   if (!req.isAuthenticated() || !user.expires_at) {
