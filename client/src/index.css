@@ -133,6 +133,50 @@ body {
   opacity: 1 !important;
 }
 
+/* Force solid backgrounds for all dropdown menus */
+[data-radix-popper-content-wrapper] {
+  background-color: white !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+}
+
+[data-radix-dropdown-menu-content] {
+  background-color: white !important;
+  border: 1px solid #e5e7eb !important;
+  opacity: 1 !important;
+}
+
+/* Ensure dropdown menu items are visible */
+[data-radix-dropdown-menu-item] {
+  background-color: transparent !important;
+  color: #374151 !important;
+}
+
+[data-radix-dropdown-menu-item]:hover {
+  background-color: #f3f4f6 !important;
+  color: #111827 !important;
+}
+
+[data-radix-dropdown-menu-label] {
+  color: #6b7280 !important;
+  background-color: transparent !important;
+}
+
+/* Additional global fixes for Radix UI components */
+.radix-dropdown-menu-content,
+.radix-popover-content,
+.radix-dialog-content {
+  background-color: white !important;
+  border: 1px solid #e5e7eb !important;
+  opacity: 1 !important;
+}
+
+/* Override any potential CSS that might cause transparency */
+* {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
 .rich-text-editor:focus {
   @apply outline-none ring-2 ring-blue-500 ring-opacity-20;
 }

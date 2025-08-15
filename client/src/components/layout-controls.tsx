@@ -75,7 +75,14 @@ export default function LayoutControls({
                 Layout
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent 
+              align="end"
+              style={{
+                backgroundColor: 'white',
+                border: '1px solid #e5e7eb',
+                opacity: 1
+              }}
+            >
               <DropdownMenuItem onClick={() => onLayoutChange("sidebar")}>
                 <Sidebar size={14} className="mr-2" />
                 Sidebar Layout
@@ -96,7 +103,14 @@ export default function LayoutControls({
                 <MoreVertical size={14} />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent 
+              align="end"
+              style={{
+                backgroundColor: 'white',
+                border: '1px solid #e5e7eb',
+                opacity: 1
+              }}
+            >
               <DropdownMenuItem onClick={onRelationshipViewToggle}>
                 <Users size={14} className="mr-2" />
                 Character Relationships

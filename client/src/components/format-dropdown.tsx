@@ -31,7 +31,15 @@ export default function FormatDropdown({ onFormat }: FormatDropdownProps) {
           Format
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="w-56">
+      <DropdownMenuContent 
+        align="start" 
+        className="w-56"
+        style={{
+          backgroundColor: 'white',
+          border: '1px solid #e5e7eb',
+          opacity: 1
+        }}
+      >
         <DropdownMenuLabel>Text Formatting</DropdownMenuLabel>
         <DropdownMenuItem onClick={() => onFormat('bold')}>
           <Bold size={14} className="mr-2" />
