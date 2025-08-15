@@ -51,46 +51,60 @@ export default function RelationshipGraph({ isOpen, onClose, projectId }: Relati
     queryKey: ["/api/projects", projectId, "timeline"],
   });
 
-  // Initialize nodes when data loads
+  // Initialize nodes when data loads with improved spacing
   useEffect(() => {
     if (!characters.length && !locations.length && !timeline.length) return;
 
     const newNodes: Node[] = [];
+    const nodeWidth = 140;
+    const nodeHeight = 80;
+    const horizontalSpacing = 180;
+    const verticalSpacing = 120;
+    const sectionSpacing = 150;
     
-    // Add character nodes
+    // Add character nodes with better spacing
     characters.forEach((char, index) => {
+      const cols = Math.min(4, Math.ceil(Math.sqrt(characters.length)));
       newNodes.push({
         id: `char-${char.id}`,
         type: "character",
         name: char.name,
-        x: 100 + (index % 4) * 200,
-        y: 100 + Math.floor(index / 4) * 150,
+        x: 80 + (index % cols) * horizontalSpacing,
+        y: 80 + Math.floor(index / cols) * verticalSpacing,
         data: char,
         connections: []
       });
     });
 
-    // Add location nodes
+    // Add location nodes in separate section
+    const characterRows = Math.ceil(characters.length / 4);
+    const locationStartY = 80 + characterRows * verticalSpacing + sectionSpacing;
+    
     locations.forEach((loc, index) => {
+      const cols = Math.min(3, Math.ceil(Math.sqrt(locations.length)));
       newNodes.push({
         id: `loc-${loc.id}`,
         type: "location",
         name: loc.name,
-        x: 100 + (index % 3) * 250,
-        y: 300 + Math.floor(index / 3) * 150,
+        x: 80 + (index % cols) * horizontalSpacing,
+        y: locationStartY + Math.floor(index / cols) * verticalSpacing,
         data: loc,
         connections: []
       });
     });
 
-    // Add event nodes
+    // Add event nodes in bottom section
+    const locationRows = Math.ceil(locations.length / 3);
+    const eventStartY = locationStartY + locationRows * verticalSpacing + sectionSpacing;
+    
     timeline.forEach((event, index) => {
+      const cols = Math.min(5, Math.ceil(Math.sqrt(timeline.length)));
       newNodes.push({
         id: `event-${event.id}`,
         type: "event",
         name: event.title,
-        x: 100 + (index % 5) * 180,
-        y: 500 + Math.floor(index / 5) * 120,
+        x: 80 + (index % cols) * horizontalSpacing,
+        y: eventStartY + Math.floor(index / cols) * verticalSpacing,
         data: event,
         connections: []
       });
@@ -126,7 +140,7 @@ export default function RelationshipGraph({ isOpen, onClose, projectId }: Relati
     });
 
     setConnections(newConnections);
-  }, [characters.length, locations.length, timeline.length]);
+  }, [characters, locations, timeline]);
 
   const filteredNodes = nodes.filter(node => {
     const matchesSearch = node.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -216,10 +230,29 @@ export default function RelationshipGraph({ isOpen, onClose, projectId }: Relati
           <div 
             ref={containerRef}
             className="w-full h-full relative bg-gray-50 overflow-auto"
-            style={{ minHeight: "600px" }}
+            style={{ 
+              minHeight: "800px",
+              minWidth: "1200px"
+            }}
           >
             {/* Connections */}
             <svg className="absolute inset-0 w-full h-full pointer-events-none">
+              <defs>
+                <marker
+                  id="arrowhead"
+                  markerWidth="10"
+                  markerHeight="7"
+                  refX="10"
+                  refY="3.5"
+                  orient="auto"
+                >
+                  <polygon
+                    points="0 0, 10 3.5, 0 7"
+                    fill="#64748b"
+                    opacity="0.5"
+                  />
+                </marker>
+              </defs>
               {connections.map((connection, index) => {
                 const fromNode = nodes.find(n => n.id === connection.from);
                 const toNode = nodes.find(n => n.id === connection.to);
@@ -229,18 +262,62 @@ export default function RelationshipGraph({ isOpen, onClose, projectId }: Relati
                 return (
                   <line
                     key={index}
-                    x1={fromNode.x + 60}
-                    y1={fromNode.y + 30}
-                    x2={toNode.x + 60}
-                    y2={toNode.y + 30}
-                    stroke="#94a3b8"
+                    x1={fromNode.x + 70}
+                    y1={fromNode.y + 35}
+                    x2={toNode.x + 70}
+                    y2={toNode.y + 35}
+                    stroke="#64748b"
                     strokeWidth="2"
                     strokeDasharray={connection.type === "related" ? "5,5" : "none"}
-                    opacity="0.6"
+                    opacity="0.5"
+                    markerEnd="url(#arrowhead)"
                   />
                 );
               })}
             </svg>
+
+            {/* Section Headers */}
+            {characters.length > 0 && (
+              <div 
+                className="absolute bg-blue-50 border border-blue-200 rounded-lg px-4 py-2"
+                style={{ left: 20, top: 40 }}
+              >
+                <h3 className="text-sm font-semibold text-blue-800 flex items-center gap-2">
+                  <Users className="h-4 w-4" />
+                  Characters
+                </h3>
+              </div>
+            )}
+            
+            {locations.length > 0 && (
+              <div 
+                className="absolute bg-green-50 border border-green-200 rounded-lg px-4 py-2"
+                style={{ 
+                  left: 20, 
+                  top: 80 + Math.ceil(characters.length / 4) * 120 + 110
+                }}
+              >
+                <h3 className="text-sm font-semibold text-green-800 flex items-center gap-2">
+                  <MapPin className="h-4 w-4" />
+                  Locations
+                </h3>
+              </div>
+            )}
+            
+            {timeline.length > 0 && (
+              <div 
+                className="absolute bg-purple-50 border border-purple-200 rounded-lg px-4 py-2"
+                style={{ 
+                  left: 20, 
+                  top: 80 + Math.ceil(characters.length / 4) * 120 + Math.ceil(locations.length / 3) * 120 + 260
+                }}
+              >
+                <h3 className="text-sm font-semibold text-purple-800 flex items-center gap-2">
+                  <Clock className="h-4 w-4" />
+                  Events
+                </h3>
+              </div>
+            )}
 
             {/* Nodes */}
             {filteredNodes.map((node) => {
@@ -248,28 +325,29 @@ export default function RelationshipGraph({ isOpen, onClose, projectId }: Relati
               return (
                 <div
                   key={node.id}
-                  className={`absolute cursor-pointer transition-all hover:shadow-lg ${getNodeColor(node.type)} ${
-                    selectedNode?.id === node.id ? 'ring-2 ring-blue-500 shadow-lg' : ''
+                  className={`absolute cursor-pointer transition-all hover:shadow-lg hover:scale-105 ${getNodeColor(node.type)} ${
+                    selectedNode?.id === node.id ? 'ring-2 ring-blue-500 shadow-lg scale-105' : ''
                   }`}
                   style={{
                     left: node.x,
                     top: node.y,
-                    width: "120px",
-                    zIndex: draggedNode === node.id ? 10 : 1
+                    width: "140px",
+                    minHeight: "70px",
+                    zIndex: draggedNode === node.id ? 10 : selectedNode?.id === node.id ? 5 : 1
                   }}
                   onMouseDown={(e) => handleNodeDrag(node.id, e)}
                   onClick={() => setSelectedNode(node)}
                 >
-                  <Card className="border-2">
-                    <CardContent className="p-3">
-                      <div className="flex items-center gap-2 mb-1">
-                        <IconComponent className="h-4 w-4" />
+                  <Card className="border-2 h-full shadow-sm">
+                    <CardContent className="p-3 h-full flex flex-col justify-between">
+                      <div className="flex items-center gap-2 mb-2">
+                        <IconComponent className="h-4 w-4 flex-shrink-0" />
                         <Badge variant="outline" className="text-xs capitalize">
                           {node.type}
                         </Badge>
                       </div>
-                      <p className="text-sm font-medium truncate" title={node.name}>
-                        {node.name}
+                      <p className="text-sm font-medium leading-tight" title={node.name}>
+                        {node.name.length > 18 ? `${node.name.substring(0, 18)}...` : node.name}
                       </p>
                     </CardContent>
                   </Card>
