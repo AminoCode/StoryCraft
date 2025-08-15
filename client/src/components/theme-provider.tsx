@@ -11,14 +11,8 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>(() => {
-    // Check localStorage first
-    const stored = localStorage.getItem("writing-app-theme");
-    if (stored === "light" || stored === "dark") {
-      return stored;
-    }
-    
-    // Fall back to system preference
-    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    // Force light mode to fix readability issues
+    return "light";
   });
 
   useEffect(() => {

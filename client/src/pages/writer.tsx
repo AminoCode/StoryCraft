@@ -358,19 +358,19 @@ export default function WriterPage() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50 dark:bg-gray-900 overflow-hidden">
+    <div className="flex h-screen bg-gray-50 overflow-hidden">
       <ThemeProvider>
         {/* Left Sidebar for Chapter Navigation */}
-        <div className="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col">
+        <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
           {/* Project Header */}
-          <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="p-4 border-b border-gray-200">
             <Link href="/projects">
               <Button variant="ghost" size="sm" className="w-full justify-start gap-2 mb-3">
                 <ArrowLeft className="h-4 w-4" />
                 Back to Projects
               </Button>
             </Link>
-            <h1 className="text-lg font-semibold text-gray-900 dark:text-white truncate">
+            <h1 className="text-lg font-semibold text-gray-900 truncate">
               {project?.title || "Untitled Project"}
             </h1>
             {project?.genre && (
@@ -388,8 +388,8 @@ export default function WriterPage() {
                   key={chapter.id}
                   className={`group flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all ${
                     chapterId === chapter.id
-                      ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
-                      : "hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+                      ? "bg-blue-100 text-blue-700"
+                      : "hover:bg-gray-100 text-gray-700"
                   }`}
                   onClick={() => window.location.href = `/writer/${projectId}/${chapter.id}`}
                   data-testid={`chapter-${chapter.id}`}
@@ -426,7 +426,7 @@ export default function WriterPage() {
           </div>
 
           {/* Add Chapter Button */}
-          <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="p-4 border-t border-gray-200">
             <Button
               onClick={() => setShowNewChapterDialog(true)}
               className="w-full"
@@ -442,7 +442,7 @@ export default function WriterPage() {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col">
         {/* Editing Controls Header */}
-        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-3">
+        <div className="bg-white border-b border-gray-200 px-6 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               {/* Enhanced Toolbar Controls */}
@@ -540,7 +540,7 @@ export default function WriterPage() {
         {layoutMode === "sidebar" ? (
           <div className="flex-1 flex">
             {/* Main Writing Area */}
-            <div className="flex-1 bg-white dark:bg-gray-900">
+            <div className="flex-1 bg-white">
               <RichTextEditor
                 content={content}
                 onChange={handleContentChange}
@@ -565,7 +565,7 @@ export default function WriterPage() {
         ) : (
           <div className="flex-1 flex flex-col">
             {/* Main Writing Area */}
-            <div className="flex-1 bg-white dark:bg-gray-900">
+            <div className="flex-1 bg-white">
               <RichTextEditor
                 content={content}
                 onChange={handleContentChange}
@@ -580,7 +580,7 @@ export default function WriterPage() {
             </div>
 
             {/* Bottom Panel for Story Elements */}
-            <div className="h-80 border-t border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div className="h-80 border-t border-gray-200 overflow-hidden">
               <ContextualSidebar 
                 documentId={chapterId || "default-doc"} 
                 projectId={projectId}

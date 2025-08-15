@@ -70,7 +70,27 @@
 
 /* Rich text editor styles */
 .rich-text-editor {
-  @apply min-h-96 p-6;
+  @apply min-h-96 p-6 bg-white text-gray-900;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  line-height: 1.8;
+}
+
+.rich-text-editor:focus {
+  @apply outline-none;
+}
+
+/* Ensure good contrast for all text in light mode */
+body {
+  @apply bg-white text-gray-900;
+}
+
+/* Override any dark mode remnants */
+.dark .rich-text-editor {
+  @apply bg-white text-gray-900;
+}
+
+.dark body {
+  @apply bg-white text-gray-900;
 }
 
 .rich-text-editor:focus {

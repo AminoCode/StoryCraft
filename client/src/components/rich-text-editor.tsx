@@ -89,11 +89,11 @@ export default function RichTextEditor({
 
 
   return (
-    <div className="h-full bg-background">
+    <div className="h-full bg-white">
       <div className="max-w-none h-full">
         <div
           ref={editorRef}
-          className="rich-text-editor prose dark:prose-invert max-w-none font-serif leading-relaxed min-h-96 focus:outline-none bg-background text-foreground"
+          className="rich-text-editor prose max-w-none font-serif leading-relaxed min-h-96 focus:outline-none bg-white text-gray-900"
           contentEditable
           onInput={handleInput}
           style={{ 
