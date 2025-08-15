@@ -540,7 +540,7 @@ export default function WriterPage() {
         {layoutMode === "sidebar" ? (
           <div className="flex-1 flex">
             {/* Main Writing Area */}
-            <div className="flex-1 bg-white">
+            <div className="flex-1 bg-white overflow-hidden">
               <RichTextEditor
                 content={content}
                 onChange={handleContentChange}
@@ -565,7 +565,7 @@ export default function WriterPage() {
         ) : (
           <div className="flex-1 flex flex-col">
             {/* Main Writing Area */}
-            <div className="flex-1 bg-white">
+            <div className="flex-1 bg-white overflow-hidden">
               <RichTextEditor
                 content={content}
                 onChange={handleContentChange}
@@ -580,14 +580,12 @@ export default function WriterPage() {
             </div>
 
             {/* Bottom Panel for Story Elements */}
-            <div className="h-80 border-t border-gray-200 bg-white">
-              <div className="h-full overflow-auto">
-                <ContextualSidebar 
-                  documentId={chapterId || "default-doc"} 
-                  projectId={projectId}
-                  isBottomLayout={true}
-                />
-              </div>
+            <div className="h-80 border-t border-gray-200 bg-white overflow-hidden">
+              <ContextualSidebar 
+                documentId={chapterId || "default-doc"} 
+                projectId={projectId}
+                isBottomLayout={true}
+              />
             </div>
           </div>
         )}
