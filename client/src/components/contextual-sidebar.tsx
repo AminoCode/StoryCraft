@@ -16,10 +16,11 @@ import type { Character, Location, TimelineEvent, InsertCharacter, InsertLocatio
 interface ContextualSidebarProps {
   documentId: string;
   projectId?: string;
+  isBottomLayout?: boolean;
 }
 
-export default function ContextualSidebar({ documentId, projectId }: ContextualSidebarProps) {
-  const [activeTab, setActiveTab] = useState("ai-suggestions");
+export default function ContextualSidebar({ documentId, projectId, isBottomLayout = false }: ContextualSidebarProps) {
+  const [activeTab, setActiveTab] = useState("suggestions");
   const [showNewCharacterDialog, setShowNewCharacterDialog] = useState(false);
   const [showNewLocationDialog, setShowNewLocationDialog] = useState(false);
   const [showNewTimelineDialog, setShowNewTimelineDialog] = useState(false);
@@ -142,21 +143,33 @@ export default function ContextualSidebar({ documentId, projectId }: ContextualS
   };
 
   return (
-    <div className="w-80 bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-700 flex flex-col h-full">
+    <div className={`bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 flex flex-col h-full ${
+      isBottomLayout 
+        ? 'w-full border-t flex-row' 
+        : 'w-80 border-l'
+    }`}>
       {/* Sidebar Header */}
-      <div className="border-b border-gray-200 dark:border-gray-700 p-4 flex-shrink-0">
+      <div className={`border-gray-200 dark:border-gray-700 p-4 flex-shrink-0 ${
+        isBottomLayout ? 'border-r' : 'border-b'
+      }`}>
         <h2 className="font-semibold text-gray-900 dark:text-gray-100">Story Elements</h2>
       </div>
 
       {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
-        <TabsList className="grid w-full grid-cols-4 border-b border-gray-200 dark:border-gray-700 rounded-none h-auto bg-transparent flex-shrink-0">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className={`flex-1 flex min-h-0 ${
+        isBottomLayout ? 'flex-row' : 'flex-col'
+      }`}>
+        <TabsList className={`grid border-gray-200 dark:border-gray-700 rounded-none h-auto bg-transparent flex-shrink-0 ${
+          isBottomLayout 
+            ? 'grid-rows-4 w-auto border-r' 
+            : 'grid-cols-4 w-full border-b'
+        }`}>
           <TabsTrigger 
-            value="ai-suggestions" 
+            value="suggestions" 
             className="flex items-center space-x-1 px-3 py-3 text-sm font-medium data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600"
           >
             <Brain size={16} />
-            <span>AI</span>
+            <span>Suggestions</span>
           </TabsTrigger>
           <TabsTrigger 
             value="characters" 
@@ -182,8 +195,8 @@ export default function ContextualSidebar({ documentId, projectId }: ContextualS
         </TabsList>
 
         <div className="flex-1 min-h-0 relative">
-          <TabsContent value="ai-suggestions" className="absolute inset-0 overflow-y-auto p-0 m-0">
-            <div className="p-4 space-y-4">
+          <TabsContent value="suggestions" className="absolute inset-0 p-0 m-0">
+            <div className={`p-4 space-y-4 h-full ${isBottomLayout ? 'overflow-x-auto overflow-y-auto' : 'overflow-y-auto'}`}>
               {/* AI Writing Suggestions */}
               <Card className="bg-gradient-to-br from-purple-50 to-blue-50 border-purple-200">
                 <CardContent className="p-4">
@@ -250,8 +263,8 @@ export default function ContextualSidebar({ documentId, projectId }: ContextualS
             </div>
           </TabsContent>
 
-          <TabsContent value="characters" className="absolute inset-0 overflow-y-auto p-0 m-0">
-            <div className="p-4 space-y-4">
+          <TabsContent value="characters" className="absolute inset-0 p-0 m-0">
+            <div className={`p-4 space-y-4 h-full ${isBottomLayout ? 'overflow-x-auto overflow-y-auto' : 'overflow-y-auto'}`}>
               {charactersLoading ? (
                 <div className="animate-pulse space-y-4">
                   {[1, 2].map(i => (
@@ -387,8 +400,8 @@ export default function ContextualSidebar({ documentId, projectId }: ContextualS
             </div>
           </TabsContent>
 
-          <TabsContent value="locations" className="absolute inset-0 overflow-y-auto p-0 m-0">
-            <div className="p-4 space-y-4">
+          <TabsContent value="locations" className="absolute inset-0 p-0 m-0">
+            <div className={`p-4 space-y-4 h-full ${isBottomLayout ? 'overflow-x-auto overflow-y-auto' : 'overflow-y-auto'}`}>
               {locationsLoading ? (
                 <div className="animate-pulse space-y-4">
                   {[1, 2].map(i => (
@@ -508,8 +521,8 @@ export default function ContextualSidebar({ documentId, projectId }: ContextualS
             </div>
           </TabsContent>
 
-          <TabsContent value="timeline" className="absolute inset-0 overflow-y-auto p-0 m-0">
-            <div className="p-4">
+          <TabsContent value="timeline" className="absolute inset-0 p-0 m-0">
+            <div className={`p-4 h-full ${isBottomLayout ? 'overflow-x-auto overflow-y-auto' : 'overflow-y-auto'}`}>
               {timelineLoading ? (
                 <div className="animate-pulse space-y-4">
                   {[1, 2, 3].map(i => (

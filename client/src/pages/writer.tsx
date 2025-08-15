@@ -413,6 +413,7 @@ export default function WriterPage() {
             <ContextualSidebar 
               documentId={chapterId || "default-doc"} 
               projectId={projectId}
+              isBottomLayout={false}
             />
           </div>
         ) : (
@@ -433,10 +434,11 @@ export default function WriterPage() {
             </div>
 
             {/* Bottom Panel for Story Elements */}
-            <div className="h-80 border-t border-gray-200">
+            <div className="h-80 border-t border-gray-200 overflow-hidden">
               <ContextualSidebar 
                 documentId={chapterId || "default-doc"} 
                 projectId={projectId}
+                isBottomLayout={true}
               />
             </div>
           </div>
