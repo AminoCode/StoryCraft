@@ -120,6 +120,19 @@ export default function WriterPage() {
     onSuccess: () => {
       setLastSaved(new Date());
       queryClient.invalidateQueries({ queryKey: ["/api/chapters", chapterId] });
+      // Only show toast for manual saves, not auto-saves
+      if (!(window as any).isAutoSave) {
+        toast({ title: "Saved", description: "Chapter content has been saved successfully." });
+      }
+      (window as any).isAutoSave = false;
+    },
+    onError: (error) => {
+      console.error("Save error:", error);
+      toast({ 
+        title: "Save Error", 
+        description: "Failed to save chapter. Please try again.",
+        variant: "destructive"
+      });
     },
   });
 
@@ -143,15 +156,27 @@ export default function WriterPage() {
     if (chapterId && newContent !== (currentChapter?.content || "")) {
       clearTimeout((window as any).saveTimeout);
       (window as any).saveTimeout = setTimeout(() => {
+        (window as any).isAutoSave = true;
         saveChapterMutation.mutate({ content: newContent, wordCount: words.length });
-      }, 1000); // Save after 1 second of no changes
+      }, 2000); // Save after 2 seconds of no changes
     }
   };
 
   const handleSave = () => {
-    if (chapterId && content !== (currentChapter?.content || "")) {
-      saveChapterMutation.mutate({ content, wordCount });
+    if (!chapterId) {
+      toast({ 
+        title: "No Chapter Selected", 
+        description: "Please select a chapter to save.",
+        variant: "destructive" 
+      });
+      return;
     }
+    
+    // Clear any pending auto-save timeout
+    clearTimeout((window as any).saveTimeout);
+    
+    // Always save current content
+    saveChapterMutation.mutate({ content, wordCount });
   };
 
   const handleCreateChapter = () => {
@@ -528,9 +553,12 @@ export default function WriterPage() {
                   disabled={saveChapterMutation.isPending}
                   size="sm"
                   className="gap-2"
+                  variant={content === (currentChapter?.content || "") ? "outline" : "default"}
+                  data-testid="save-button"
                 >
                   <Save className="h-4 w-4" />
-                  {saveChapterMutation.isPending ? "Saving..." : "Save"}
+                  {saveChapterMutation.isPending ? "Saving..." : 
+                   content === (currentChapter?.content || "") ? "Saved" : "Save"}
                 </Button>
               )}
             </div>
