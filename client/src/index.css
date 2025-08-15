@@ -73,7 +73,22 @@
 .rich-text-editor {
   @apply bg-white text-gray-900;
   font-family: 'Georgia', 'Times New Roman', serif;
-  line-height: 1.8;
+}
+
+/* CRITICAL: Force scrolling everywhere - override all constraints */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  overflow: auto !important;
+  height: auto !important;
+  min-height: 100vh !important;
+}
+
+/* Force all containers to allow scrolling */
+div, section, main, article {
+  overflow: visible !important;
 }
 
 .rich-text-editor:focus {

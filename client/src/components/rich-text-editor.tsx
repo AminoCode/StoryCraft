@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { useWritingAssistant } from "@/hooks/use-writing-assistant";
 import { Button } from "@/components/ui/button";
 import { Lightbulb } from "lucide-react";
-import GrammarSuggestionsPanel from "@/components/grammar-suggestions-panel";
 
 export interface RichTextEditorProps {
   content: string;
@@ -10,14 +9,6 @@ export interface RichTextEditorProps {
   documentId: string;
   projectId?: string;
   style?: React.CSSProperties;
-}
-
-interface AiSuggestion {
-  type: string;
-  originalText: string;
-  suggestion: string;
-  position: number;
-  reason?: string;
 }
 
 export default function RichTextEditor({ 
@@ -55,14 +46,10 @@ export default function RichTextEditor({
   const analyzeSuggestions = async (text: string) => {
     try {
       const result = await analyzeText(text, projectId);
-      // Suggestions are handled by parent component
       
       // If entities were auto-updated, refresh the sidebar data
       if (result?.autoUpdated && projectId) {
-        // Import queryClient to invalidate story element queries
         const { queryClient } = await import("@/lib/queryClient");
-        
-        // Invalidate all story element queries for this project
         queryClient.invalidateQueries({ queryKey: ["/api/projects", projectId, "characters"] });
         queryClient.invalidateQueries({ queryKey: ["/api/projects", projectId, "locations"] });
         queryClient.invalidateQueries({ queryKey: ["/api/projects", projectId, "timeline"] });
@@ -85,7 +72,7 @@ export default function RichTextEditor({
   };
 
   return (
-    <div className="h-full bg-white overflow-y-auto">
+    <div style={{ height: '100vh', overflowY: 'auto', backgroundColor: 'white' }}>
       <div
         ref={editorRef}
         className="rich-text-editor prose max-w-none font-serif leading-relaxed focus:outline-none bg-white text-gray-900 p-8"
@@ -95,7 +82,8 @@ export default function RichTextEditor({
           fontSize: style?.fontSize || '18px', 
           lineHeight: style?.lineHeight || '1.7',
           fontFamily: style?.fontFamily || 'serif',
-          minHeight: 'calc(100vh - 200px)',
+          minHeight: '300vh',
+          height: 'auto',
           ...style
         }}
         suppressContentEditableWarning={true}

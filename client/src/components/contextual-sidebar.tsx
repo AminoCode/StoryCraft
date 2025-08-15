@@ -143,11 +143,18 @@ export default function ContextualSidebar({ documentId, projectId, isBottomLayou
   };
 
   return (
-    <div className={`bg-white border-gray-200 flex flex-col h-full ${
-      isBottomLayout 
-        ? 'w-full border-t flex-row' 
-        : 'w-full'
-    }`}>
+    <div 
+      className={`bg-white border-gray-200 flex flex-col ${
+        isBottomLayout 
+          ? 'w-full border-t flex-row' 
+          : 'w-full'
+      }`}
+      style={{ 
+        height: '100%', 
+        overflowY: 'auto',
+        overflowX: 'hidden'
+      }}
+    >
       {/* Sidebar Header */}
       <div className={`border-gray-200 p-4 flex-shrink-0 ${
         isBottomLayout ? 'border-r' : 'border-b'
@@ -190,7 +197,14 @@ export default function ContextualSidebar({ documentId, projectId, isBottomLayou
         <div className="flex-1 min-h-0 relative">
 
           <TabsContent value="characters" className="absolute inset-0 p-0 m-0">
-            <div className="p-4 space-y-4 h-full overflow-y-auto">
+            <div 
+              className="p-4 space-y-4" 
+              style={{ 
+                height: '100%', 
+                overflowY: 'auto',
+                overflowX: 'hidden'
+              }}
+            >
               {charactersLoading ? (
                 <div className="animate-pulse space-y-4">
                   {[1, 2].map(i => (
@@ -327,7 +341,14 @@ export default function ContextualSidebar({ documentId, projectId, isBottomLayou
           </TabsContent>
 
           <TabsContent value="locations" className="absolute inset-0 p-0 m-0">
-            <div className="p-4 space-y-4 h-full overflow-y-auto">
+            <div 
+              className="p-4 space-y-4" 
+              style={{ 
+                height: '100%', 
+                overflowY: 'auto',
+                overflowX: 'hidden'
+              }}
+            >
               {locationsLoading ? (
                 <div className="animate-pulse space-y-4">
                   {[1, 2].map(i => (
@@ -448,7 +469,14 @@ export default function ContextualSidebar({ documentId, projectId, isBottomLayou
           </TabsContent>
 
           <TabsContent value="timeline" className="absolute inset-0 p-0 m-0">
-            <div className="p-4 h-full overflow-y-auto">
+            <div 
+              className="p-4" 
+              style={{ 
+                height: '100%', 
+                overflowY: 'auto',
+                overflowX: 'hidden'
+              }}
+            >
               {timelineLoading ? (
                 <div className="animate-pulse space-y-4">
                   {[1, 2, 3].map(i => (
