@@ -357,49 +357,137 @@ export default function WriterPage() {
 
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-gray-900 overflow-hidden">
-      <EnhancedToolbar
-        onAiSuggestions={handleAiSuggestions}
-        onExport={handleExport}
-        onQuickFormat={handleQuickFormat}
-        onThesaurus={handleThesaurus}
-        onRelationshipView={handleRelationshipView}
-        onLayoutToggle={toggleLayout}
-        onSpellCheck={handleSpellCheck}
-        layoutMode={layoutMode}
-        onFontSizeChange={setFontSize}
-        onFontFamilyChange={setFontFamily}
-        onLineSpacingChange={setLineSpacing}
-        currentFontSize={fontSize}
-        currentFontFamily={fontFamily}
-        currentLineSpacing={lineSpacing}
-      >
-        <FormatDropdown onFormat={handleFormatAction} />
-      </EnhancedToolbar>
-      
-      {/* Project Navigation Header */}
-      <div className="flex-1 flex flex-col">
-        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link href="/projects">
-                <Button variant="ghost" size="sm" className="gap-2">
-                  <ArrowLeft className="h-4 w-4" />
-                  Back to Projects
-                </Button>
-              </Link>
-              
-              <Separator orientation="vertical" className="h-6" />
-              
-              <div className="flex items-center gap-3">
-                <BookOpen className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <h1 className="font-semibold text-lg">{project?.title || "Unknown Project"}</h1>
-                  {project?.genre && (
-                    <Badge variant="secondary" className="text-xs">
-                      {project.genre}
-                    </Badge>
+      <ThemeProvider>
+        {/* Left Sidebar for Chapter Navigation */}
+        <div className="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col">
+          {/* Project Header */}
+          <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+            <Link href="/projects">
+              <Button variant="ghost" size="sm" className="w-full justify-start gap-2 mb-3">
+                <ArrowLeft className="h-4 w-4" />
+                Back to Projects
+              </Button>
+            </Link>
+            <h1 className="text-lg font-semibold text-gray-900 dark:text-white truncate">
+              {project?.title || "Untitled Project"}
+            </h1>
+            {project?.genre && (
+              <Badge variant="secondary" className="text-xs mt-1">
+                {project.genre}
+              </Badge>
+            )}
+          </div>
+
+          {/* Chapter List */}
+          <div className="flex-1 overflow-y-auto">
+            <div className="p-2 space-y-1">
+              {chapters.map((chapter) => (
+                <div
+                  key={chapter.id}
+                  className={`group flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all ${
+                    chapterId === chapter.id
+                      ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+                      : "hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+                  }`}
+                  onClick={() => navigate(`/writer/${projectId}/${chapter.id}`)}
+                  data-testid={`chapter-${chapter.id}`}
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium truncate">
+                      Chapter {chapter.order}
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                      {chapter.title}
+                    </div>
+                    <div className="text-xs text-gray-400 dark:text-gray-500">
+                      {chapter.wordCount || 0} words
+                    </div>
+                  </div>
+                  {chapterId === chapter.id && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="opacity-0 group-hover:opacity-100 w-6 h-6 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setChapterToDelete(chapter.id);
+                        setShowDeleteDialog(true);
+                      }}
+                      data-testid={`delete-chapter-${chapter.id}`}
+                    >
+                      <Trash2 size={14} />
+                    </Button>
                   )}
                 </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Add Chapter Button */}
+          <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+            <Button
+              onClick={() => setShowNewChapterDialog(true)}
+              className="w-full"
+              size="sm"
+              data-testid="add-chapter-button"
+            >
+              <Plus size={16} className="mr-2" />
+              Add Chapter
+            </Button>
+          </div>
+        </div>
+      
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col">
+        {/* Editing Controls Header */}
+        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              {/* Enhanced Toolbar Controls */}
+              <div className="flex items-center gap-2">
+                <FormatDropdown onFormat={handleFormatAction} />
+                <Separator orientation="vertical" className="h-6" />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="gap-2"
+                  onClick={handleAiSuggestions}
+                  data-testid="ai-suggestions-button"
+                >
+                  <Wand2 className="h-4 w-4" />
+                  AI
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="gap-2"
+                  onClick={handleThesaurus}
+                  data-testid="thesaurus-button"
+                >
+                  <Book className="h-4 w-4" />
+                  Thesaurus
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="gap-2"
+                  onClick={handleQuickFormat}
+                  data-testid="quick-format-button"
+                >
+                  <Type className="h-4 w-4" />
+                  Quick Format
+                </Button>
+                <Separator orientation="vertical" className="h-6" />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="gap-2"
+                  onClick={handleExport}
+                  data-testid="export-button"
+                >
+                  <Download className="h-4 w-4" />
+                  Export
+                </Button>
               </div>
             </div>
 
@@ -409,6 +497,15 @@ export default function WriterPage() {
                   <Clock className="h-4 w-4" />
                   {lastSaved ? `Saved ${lastSaved.toLocaleTimeString()}` : "Not saved"}
                 </div>
+              )}
+              
+              <span className="text-xs text-muted-foreground">
+                {wordCount} words
+              </span>
+              {currentChapter && (
+                <span className="text-xs text-muted-foreground">
+                  Chapter {currentChapter.order}
+                </span>
               )}
               
               {chapterId && (
@@ -437,91 +534,7 @@ export default function WriterPage() {
           projectId={projectId}
         />
 
-        {/* Chapter Navigation */}
-        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-3">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">Chapters:</span>
-              <div className="flex gap-2">
-                {chapters.map((chapter) => (
-                  <div key={chapter.id} className="flex items-center gap-1">
-                    <Link href={`/writer/${projectId}/${chapter.id}`}>
-                      <Button
-                        variant={chapterId === chapter.id ? "default" : "outline"}
-                        size="sm"
-                        className="h-8"
-                      >
-                        {chapter.title}
-                      </Button>
-                    </Link>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-6 w-6 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
-                      onClick={() => handleDeleteChapter(chapter.id)}
-                    >
-                      ×
-                    </Button>
-                  </div>
-                ))}
-                
-                <Dialog open={showNewChapterDialog} onOpenChange={setShowNewChapterDialog}>
-                  <DialogTrigger asChild>
-                    <Button variant="outline" size="sm" className="h-8 gap-1">
-                      <Plus className="h-3 w-3" />
-                      New Chapter
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[425px]">
-                    <DialogHeader>
-                      <DialogTitle>Create New Chapter</DialogTitle>
-                      <DialogDescription>
-                        Add a new chapter to your project.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="chapter-title">Chapter Title</Label>
-                        <Input
-                          id="chapter-title"
-                          value={newChapterTitle}
-                          onChange={(e) => setNewChapterTitle(e.target.value)}
-                          placeholder="Enter chapter title..."
-                        />
-                      </div>
-                    </div>
-                    <DialogFooter>
-                      <Button
-                        variant="outline"
-                        onClick={() => setShowNewChapterDialog(false)}
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        onClick={handleCreateChapter}
-                        disabled={!newChapterTitle.trim() || createChapterMutation.isPending}
-                      >
-                        {createChapterMutation.isPending ? "Creating..." : "Create Chapter"}
-                      </Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4 ml-auto">
-              <span className="text-xs text-muted-foreground">
-                {wordCount} words
-              </span>
-              {currentChapter && (
-                <span className="text-xs text-muted-foreground">
-                  Chapter {currentChapter.order}
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-        
+        {/* Writing Area Layout */}
         {layoutMode === "sidebar" ? (
           <div className="flex-1 flex">
             {/* Main Writing Area */}
@@ -571,7 +584,7 @@ export default function WriterPage() {
             </div>
 
             {/* Bottom Panel for Story Elements */}
-            <div className="h-80 border-t border-gray-200 overflow-hidden">
+            <div className="h-80 border-t border-gray-200 dark:border-gray-700 overflow-hidden">
               <ContextualSidebar 
                 documentId={chapterId || "default-doc"} 
                 projectId={projectId}
@@ -581,7 +594,17 @@ export default function WriterPage() {
           </div>
         )}
       </div>
+      </ThemeProvider>
 
+      {/* Grammar Suggestions Panel */}
+      {showGrammarSuggestions && (
+        <GrammarSuggestionsPanel
+          suggestions={suggestions}
+          onApplySuggestion={handleApplySuggestion}
+          onDismissSuggestion={handleDismissSuggestion}
+          onClose={() => setShowGrammarSuggestions(false)}
+        />
+      )}
       
       <AiModal
         isOpen={showAiModal}
@@ -612,6 +635,46 @@ export default function WriterPage() {
         onClose={() => setShowRelationshipView(false)}
         projectId={projectId}
       />
+
+      {/* New Chapter Dialog */}
+      <Dialog open={showNewChapterDialog} onOpenChange={setShowNewChapterDialog}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Create New Chapter</DialogTitle>
+            <DialogDescription>
+              Add a new chapter to your project.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="chapter-title">Chapter Title</Label>
+              <Input
+                id="chapter-title"
+                value={newChapterTitle}
+                onChange={(e) => setNewChapterTitle(e.target.value)}
+                placeholder="Enter chapter title..."
+                data-testid="new-chapter-title-input"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowNewChapterDialog(false)}
+              data-testid="cancel-new-chapter"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleCreateChapter}
+              disabled={!newChapterTitle.trim() || createChapterMutation.isPending}
+              data-testid="create-new-chapter"
+            >
+              {createChapterMutation.isPending ? "Creating..." : "Create Chapter"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Delete Chapter Dialog */}
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
