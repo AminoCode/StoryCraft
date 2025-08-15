@@ -177,6 +177,42 @@ body {
   backdrop-filter: none !important;
 }
 
+/* Ensure independent scrolling for all three sections */
+.chapter-sidebar {
+  height: 100vh !important;
+  max-height: 100vh !important;
+  overflow: hidden !important;
+}
+
+.chapter-list-container {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  height: 100% !important;
+  min-height: 0 !important;
+}
+
+.main-editor-container {
+  height: 100% !important;
+  max-height: 100% !important;
+  overflow: hidden !important;
+}
+
+.story-elements-container {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  height: 100% !important;
+  max-height: 100% !important;
+}
+
+/* Force proper scrolling behavior */
+.scrollable-content {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  height: 100% !important;
+  flex: 1 !important;
+  min-height: 0 !important;
+}
+
 .rich-text-editor:focus {
   @apply outline-none ring-2 ring-blue-500 ring-opacity-20;
 }

@@ -69,10 +69,10 @@ export default function WriterPage() {
     enabled: !!chapterId,
   });
 
-  // Fallback to document API for compatibility - only when needed
+  // Fallback to document API for compatibility - disabled to prevent 404
   const { data: document, isLoading: isDocumentLoading } = useQuery<Document>({
     queryKey: ["/api/documents", "default-doc"],
-    enabled: !chapterId && !isChaptersLoading && chapters.length === 0,
+    enabled: false, // Disabled to prevent unnecessary 404 calls
   });
 
   const { 
@@ -358,12 +358,19 @@ export default function WriterPage() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
+    <div className="flex h-screen bg-gray-50">
       <ThemeProvider>
         {/* Left Sidebar for Chapter Navigation */}
-        <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
+        <div 
+          className="w-64 bg-white border-r border-gray-200 flex flex-col"
+          style={{ 
+            height: '100vh',
+            maxHeight: '100vh',
+            overflow: 'hidden'
+          }}
+        >
           {/* Project Header */}
-          <div className="p-4 border-b border-gray-200 pt-[6px] pb-[6px]">
+          <div className="flex-shrink-0 p-4 border-b border-gray-200">
             <Link href="/projects">
               <Button variant="ghost" size="sm" className="w-full justify-start gap-2 mb-3">
                 <ArrowLeft className="h-4 w-4" />
@@ -380,62 +387,72 @@ export default function WriterPage() {
             )}
           </div>
 
-          {/* Chapter List */}
-          <div className="flex-1 overflow-y-auto">
-            <div className="p-2 space-y-1">
-              {chapters.map((chapter) => (
-                <div
-                  key={chapter.id}
-                  className={`group flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all ${
-                    chapterId === chapter.id
-                      ? "bg-blue-100 text-blue-700"
-                      : "hover:bg-gray-100 text-gray-700"
-                  }`}
-                  onClick={() => window.location.href = `/writer/${projectId}/${chapter.id}`}
-                  data-testid={`chapter-${chapter.id}`}
-                >
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium truncate">
-                      Chapter {chapter.order}
-                    </div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                      {chapter.title}
-                    </div>
-                    <div className="text-xs text-gray-400 dark:text-gray-500">
-                      {chapter.wordCount || 0} words
-                    </div>
-                  </div>
-                  {chapterId === chapter.id && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="opacity-0 group-hover:opacity-100 w-6 h-6 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setChapterToDelete(chapter.id);
-                        setShowDeleteDialog(true);
-                      }}
-                      data-testid={`delete-chapter-${chapter.id}`}
-                    >
-                      <Trash2 size={14} />
-                    </Button>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Add Chapter Button */}
-          <div className="p-4 border-t border-gray-200">
-            <Button
-              onClick={() => setShowNewChapterDialog(true)}
-              className="w-full"
-              size="sm"
-              data-testid="add-chapter-button"
+          {/* Chapter List Container */}
+          <div className="flex-1 flex flex-col min-h-0">
+            {/* Scrollable Chapter List */}
+            <div 
+              className="flex-1"
+              style={{ 
+                overflowY: 'auto !important',
+                overflowX: 'hidden',
+                minHeight: 0
+              }}
             >
-              <Plus size={16} className="mr-2" />
-              Add Chapter
-            </Button>
+              <div className="p-2 space-y-1">
+                {chapters.map((chapter) => (
+                  <div
+                    key={chapter.id}
+                    className={`group flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all ${
+                      chapterId === chapter.id
+                        ? "bg-blue-100 text-blue-700"
+                        : "hover:bg-gray-100 text-gray-700"
+                    }`}
+                    onClick={() => window.location.href = `/writer/${projectId}/${chapter.id}`}
+                    data-testid={`chapter-${chapter.id}`}
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium truncate">
+                        Chapter {chapter.order}
+                      </div>
+                      <div className="text-xs text-gray-500 truncate">
+                        {chapter.title}
+                      </div>
+                      <div className="text-xs text-gray-400">
+                        {chapter.wordCount || 0} words
+                      </div>
+                    </div>
+                    {chapterId === chapter.id && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="opacity-0 group-hover:opacity-100 w-6 h-6 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setChapterToDelete(chapter.id);
+                          setShowDeleteDialog(true);
+                        }}
+                        data-testid={`delete-chapter-${chapter.id}`}
+                      >
+                        <Trash2 size={14} />
+                      </Button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Fixed Add Chapter Button */}
+            <div className="flex-shrink-0 p-4 border-t border-gray-200 bg-white">
+              <Button
+                onClick={() => setShowNewChapterDialog(true)}
+                className="w-full"
+                size="sm"
+                data-testid="add-chapter-button"
+              >
+                <Plus size={16} className="mr-2" />
+                Add Chapter
+              </Button>
+            </div>
           </div>
         </div>
       
@@ -538,9 +555,16 @@ export default function WriterPage() {
 
         {/* Writing Area Layout */}
         {layoutMode === "sidebar" ? (
-          <div className="flex-1 flex">
+          <div className="flex-1 flex min-h-0">
             {/* Main Writing Area */}
-            <div className="flex-1 bg-white">
+            <div 
+              className="flex-1 bg-white"
+              style={{
+                height: '100%',
+                maxHeight: '100%',
+                overflow: 'hidden'
+              }}
+            >
               <RichTextEditor
                 content={content}
                 onChange={handleContentChange}
@@ -555,17 +579,31 @@ export default function WriterPage() {
             </div>
 
             <ResizableSidebar defaultWidth={320} minWidth={250} maxWidth={500}>
-              <ContextualSidebar 
-                documentId={chapterId || "default-doc"} 
-                projectId={projectId}
-                isBottomLayout={false}
-              />
+              <div 
+                style={{
+                  height: '100%',
+                  maxHeight: '100%',
+                  overflow: 'hidden'
+                }}
+              >
+                <ContextualSidebar 
+                  documentId={chapterId || "default-doc"} 
+                  projectId={projectId}
+                  isBottomLayout={false}
+                />
+              </div>
             </ResizableSidebar>
           </div>
         ) : (
-          <div className="flex-1 flex flex-col">
+          <div className="flex-1 flex flex-col min-h-0">
             {/* Main Writing Area */}
-            <div className="flex-1 bg-white">
+            <div 
+              className="flex-1 bg-white"
+              style={{
+                minHeight: 0,
+                overflow: 'hidden'
+              }}
+            >
               <RichTextEditor
                 content={content}
                 onChange={handleContentChange}
@@ -581,12 +619,12 @@ export default function WriterPage() {
 
             {/* Bottom Panel for Story Elements */}
             <div 
-              className="border-t border-gray-200 bg-white"
+              className="flex-shrink-0 border-t border-gray-200 bg-white"
               style={{
                 height: '320px',
                 minHeight: '320px',
-                maxHeight: '50vh',
-                overflowY: 'auto'
+                maxHeight: '320px',
+                overflow: 'hidden'
               }}
             >
               <ContextualSidebar 
