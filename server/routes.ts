@@ -190,6 +190,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/chapters/:chapterId/characters", async (req, res) => {
+    try {
+      const characters = await storage.getCharactersByChapter(req.params.chapterId);
+      res.json(characters);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch characters by chapter" });
+    }
+  });
+
   // Keep old route for compatibility
   app.get("/api/documents/:documentId/characters", async (req, res) => {
     try {
@@ -232,6 +241,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/chapters/:chapterId/locations", async (req, res) => {
+    try {
+      const locations = await storage.getLocationsByChapter(req.params.chapterId);
+      res.json(locations);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch locations by chapter" });
+    }
+  });
+
   // Keep old route for compatibility
   app.get("/api/documents/:documentId/locations", async (req, res) => {
     try {
@@ -259,6 +277,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(events);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch timeline events" });
+    }
+  });
+
+  app.get("/api/chapters/:chapterId/timeline", async (req, res) => {
+    try {
+      const events = await storage.getTimelineEventsByChapter(req.params.chapterId);
+      res.json(events);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch timeline events by chapter" });
     }
   });
 

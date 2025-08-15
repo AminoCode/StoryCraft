@@ -603,6 +603,7 @@ export default function WriterPage() {
                   <ContextualSidebar 
                     documentId={chapterId || "default-doc"} 
                     projectId={projectId}
+                    currentChapterId={chapterId}
                     isBottomLayout={false}
                   />
                 </div>
@@ -644,6 +645,7 @@ export default function WriterPage() {
                 <ContextualSidebar 
                   documentId={chapterId || "default-doc"} 
                   projectId={projectId}
+                  currentChapterId={chapterId}
                   isBottomLayout={true}
                 />
               </div>

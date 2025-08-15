@@ -57,18 +57,21 @@ export interface IStorage {
   
   // Character operations
   getCharactersByProject(projectId: string): Promise<Character[]>;
+  getCharactersByChapter(chapterId: string): Promise<Character[]>;
   createCharacter(character: InsertCharacter): Promise<Character>;
   updateCharacter(id: string, updates: Partial<Character>): Promise<Character | undefined>;
   deleteCharacter(id: string): Promise<boolean>;
   
   // Location operations
   getLocationsByProject(projectId: string): Promise<Location[]>;
+  getLocationsByChapter(chapterId: string): Promise<Location[]>;
   createLocation(location: InsertLocation): Promise<Location>;
   updateLocation(id: string, updates: Partial<Location>): Promise<Location | undefined>;
   deleteLocation(id: string): Promise<boolean>;
   
   // Timeline operations
   getTimelineEventsByProject(projectId: string): Promise<TimelineEvent[]>;
+  getTimelineEventsByChapter(chapterId: string): Promise<TimelineEvent[]>;
   createTimelineEvent(event: InsertTimelineEvent): Promise<TimelineEvent>;
   updateTimelineEvent(id: string, updates: Partial<TimelineEvent>): Promise<TimelineEvent | undefined>;
   deleteTimelineEvent(id: string): Promise<boolean>;
@@ -213,6 +216,11 @@ export class DatabaseStorage implements IStorage {
       .where(eq(characters.projectId, projectId));
   }
 
+  async getCharactersByChapter(chapterId: string): Promise<Character[]> {
+    return await db.select().from(characters)
+      .where(eq(characters.chapterId, chapterId));
+  }
+
   async createCharacter(insertCharacter: InsertCharacter): Promise<Character> {
     const [character] = await db
       .insert(characters)
@@ -241,6 +249,11 @@ export class DatabaseStorage implements IStorage {
       .where(eq(locations.projectId, projectId));
   }
 
+  async getLocationsByChapter(chapterId: string): Promise<Location[]> {
+    return await db.select().from(locations)
+      .where(eq(locations.chapterId, chapterId));
+  }
+
   async createLocation(insertLocation: InsertLocation): Promise<Location> {
     const [location] = await db
       .insert(locations)
@@ -267,6 +280,12 @@ export class DatabaseStorage implements IStorage {
   async getTimelineEventsByProject(projectId: string): Promise<TimelineEvent[]> {
     return await db.select().from(timelineEvents)
       .where(eq(timelineEvents.projectId, projectId))
+      .orderBy(timelineEvents.order);
+  }
+
+  async getTimelineEventsByChapter(chapterId: string): Promise<TimelineEvent[]> {
+    return await db.select().from(timelineEvents)
+      .where(eq(timelineEvents.chapterId, chapterId))
       .orderBy(timelineEvents.order);
   }
 
@@ -530,6 +549,12 @@ As she approached the library door, Sarah noticed something peculiar. The doorkn
     );
   }
 
+  async getCharactersByChapter(chapterId: string): Promise<Character[]> {
+    return Array.from(this.characters.values()).filter(
+      (character) => character.chapterId === chapterId,
+    );
+  }
+
   async createCharacter(insertCharacter: InsertCharacter): Promise<Character> {
     const id = randomUUID();
     const character: Character = { 
@@ -567,6 +592,12 @@ As she approached the library door, Sarah noticed something peculiar. The doorkn
     );
   }
 
+  async getLocationsByChapter(chapterId: string): Promise<Location[]> {
+    return Array.from(this.locations.values()).filter(
+      (location) => location.chapterId === chapterId,
+    );
+  }
+
   async createLocation(insertLocation: InsertLocation): Promise<Location> {
     const id = randomUUID();
     const location: Location = { 
@@ -599,6 +630,12 @@ As she approached the library door, Sarah noticed something peculiar. The doorkn
   async getTimelineEventsByProject(projectId: string): Promise<TimelineEvent[]> {
     return Array.from(this.timelineEvents.values())
       .filter((event) => event.projectId === projectId)
+      .sort((a, b) => a.order - b.order);
+  }
+
+  async getTimelineEventsByChapter(chapterId: string): Promise<TimelineEvent[]> {
+    return Array.from(this.timelineEvents.values())
+      .filter((event) => event.chapterId === chapterId)
       .sort((a, b) => a.order - b.order);
   }
 

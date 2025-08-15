@@ -11,6 +11,13 @@ Force light mode only - dark mode disabled due to readability issues.
 
 ## Recent Changes (August 15, 2025)
 
+### Chapter-Based Filtering Feature Implementation
+- Added comprehensive chapter filtering functionality for story elements (characters, locations, timeline)
+- Extended storage interface with chapter-specific query methods (getCharactersByChapter, getLocationsByChapter, getTimelineEventsByChapter)
+- Implemented new API endpoints for chapter-scoped data retrieval (/api/chapters/:chapterId/characters, locations, timeline)
+- Updated contextual sidebar with dynamic filtering dropdown allowing users to view elements by current chapter, specific chapter, or entire project
+- Enhanced data queries with smart query key management for efficient caching and invalidation
+
 ### Codebase Optimization and Technical Debt Resolution
 - Fixed all TypeScript errors in storage.ts including null safety improvements for database operations
 - Resolved infinite re-render issues in RelationshipGraph component with optimized useEffect dependencies  

@@ -8,18 +8,20 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Users, MapPin, Clock, Edit3, Trash2, RefreshCw, Brain } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Plus, Users, MapPin, Clock, Edit3, Trash2, RefreshCw, Brain, Filter } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
-import type { Character, Location, TimelineEvent, InsertCharacter, InsertLocation } from "@shared/schema";
+import type { Character, Location, TimelineEvent, InsertCharacter, InsertLocation, Chapter } from "@shared/schema";
 
 interface ContextualSidebarProps {
   documentId: string;
   projectId?: string;
+  currentChapterId?: string;
   isBottomLayout?: boolean;
 }
 
-export default function ContextualSidebar({ documentId, projectId, isBottomLayout = false }: ContextualSidebarProps) {
+export default function ContextualSidebar({ documentId, projectId, currentChapterId, isBottomLayout = false }: ContextualSidebarProps) {
   const [activeTab, setActiveTab] = useState("characters");
   const [showNewCharacterDialog, setShowNewCharacterDialog] = useState(false);
   const [showNewLocationDialog, setShowNewLocationDialog] = useState(false);
@@ -27,20 +29,38 @@ export default function ContextualSidebar({ documentId, projectId, isBottomLayou
   const [newCharacter, setNewCharacter] = useState<Partial<InsertCharacter>>({});
   const [newLocation, setNewLocation] = useState<Partial<InsertLocation>>({});
   const [newTimelineEvent, setNewTimelineEvent] = useState<Partial<TimelineEvent>>({});
+  const [selectedChapterFilter, setSelectedChapterFilter] = useState<string>("all");
   
   const { toast } = useToast();
 
-  // Use project-based queries if projectId is provided, otherwise fallback to document-based
+  // Fetch chapters for the project
+  const { data: chapters = [] } = useQuery<Chapter[]>({
+    queryKey: projectId ? ["/api/projects", projectId, "chapters"] : [],
+    enabled: !!projectId,
+  });
+
+  // Dynamic query keys based on filter selection
+  const getQueryKey = (entityType: string) => {
+    if (selectedChapterFilter === "current" && currentChapterId) {
+      return ["/api/chapters", currentChapterId, entityType];
+    }
+    if (selectedChapterFilter !== "all" && selectedChapterFilter !== "current") {
+      return ["/api/chapters", selectedChapterFilter, entityType];
+    }
+    return projectId ? ["/api/projects", projectId, entityType] : ["/api/documents", documentId, entityType];
+  };
+
+  // Use dynamic queries based on chapter filter selection
   const { data: characters = [], isLoading: charactersLoading } = useQuery<Character[]>({
-    queryKey: projectId ? ["/api/projects", projectId, "characters"] : ["/api/documents", documentId, "characters"],
+    queryKey: getQueryKey("characters"),
   });
 
   const { data: locations = [], isLoading: locationsLoading } = useQuery<Location[]>({
-    queryKey: projectId ? ["/api/projects", projectId, "locations"] : ["/api/documents", documentId, "locations"],
+    queryKey: getQueryKey("locations"),
   });
 
   const { data: timeline = [], isLoading: timelineLoading } = useQuery<TimelineEvent[]>({
-    queryKey: projectId ? ["/api/projects", projectId, "timeline"] : ["/api/documents", documentId, "timeline"],
+    queryKey: getQueryKey("timeline"),
   });
 
   // Consolidated mutation helper
@@ -139,7 +159,35 @@ export default function ContextualSidebar({ documentId, projectId, isBottomLayou
       <div className={`border-gray-200 p-4 flex-shrink-0 ${
         isBottomLayout ? 'border-r' : 'border-b'
       }`}>
-        <h2 className="font-semibold text-gray-900">Story Elements</h2>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="font-semibold text-gray-900">Story Elements</h2>
+          <Filter size={16} className="text-gray-400" />
+        </div>
+        
+        {/* Chapter Filter */}
+        {projectId && (
+          <div className="space-y-2">
+            <Label htmlFor="chapter-filter" className="text-xs text-gray-600">
+              View by:
+            </Label>
+            <Select value={selectedChapterFilter} onValueChange={setSelectedChapterFilter}>
+              <SelectTrigger className="w-full h-8 text-xs">
+                <SelectValue placeholder="Select scope" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Entire Project</SelectItem>
+                {currentChapterId && (
+                  <SelectItem value="current">Current Chapter</SelectItem>
+                )}
+                {chapters.map((chapter) => (
+                  <SelectItem key={chapter.id} value={chapter.id}>
+                    {chapter.title}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
       </div>
 
       {/* Tabs */}
