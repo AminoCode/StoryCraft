@@ -89,18 +89,18 @@ export default function RichTextEditor({
 
 
   return (
-    <div className="h-full bg-white overflow-auto">
-      <div className="max-w-none">
+    <div className="h-full bg-white">
+      <div className="h-full overflow-y-auto">
         <div
           ref={editorRef}
-          className="rich-text-editor prose max-w-none font-serif leading-relaxed min-h-full focus:outline-none bg-white text-gray-900 p-8"
+          className="rich-text-editor prose max-w-none font-serif leading-relaxed focus:outline-none bg-white text-gray-900 p-8"
           contentEditable
           onInput={handleInput}
           style={{ 
             fontSize: style?.fontSize || '18px', 
             lineHeight: style?.lineHeight || '1.7',
             fontFamily: style?.fontFamily || 'serif',
-            minHeight: 'calc(100vh - 200px)',
+            minHeight: '100vh',
             ...style
           }}
           suppressContentEditableWarning={true}
