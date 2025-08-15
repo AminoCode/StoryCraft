@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -57,6 +57,9 @@ export default function ThesaurusModal({ isOpen, onClose }: ThesaurusModalProps)
             <Book className="h-5 w-5" />
             Thesaurus
           </DialogTitle>
+          <DialogDescription>
+            Find synonyms and alternative words to enhance your writing.
+          </DialogDescription>
         </DialogHeader>
         
         <div className="space-y-4">

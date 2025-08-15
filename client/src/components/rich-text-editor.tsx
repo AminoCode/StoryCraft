@@ -44,6 +44,8 @@ export default function RichTextEditor({
   };
 
   const analyzeSuggestions = async (text: string) => {
+    if (!text.trim() || !projectId) return;
+    
     try {
       const result = await analyzeText(text, projectId);
       
@@ -55,7 +57,10 @@ export default function RichTextEditor({
         queryClient.invalidateQueries({ queryKey: ["/api/projects", projectId, "timeline"] });
       }
     } catch (error) {
-      console.error('Error analyzing text:', error);
+      // Only log meaningful errors, not empty or missing data
+      if (error && typeof error === 'object' && Object.keys(error).length > 0) {
+        console.error('Error analyzing text:', error);
+      }
     }
   };
 

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -140,7 +140,7 @@ export default function RelationshipGraph({ isOpen, onClose, projectId }: Relati
     });
 
     setConnections(newConnections);
-  }, [characters, locations, timeline]);
+  }, [characters.length, locations.length, timeline.length]);
 
   const filteredNodes = nodes.filter(node => {
     const matchesSearch = node.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -199,6 +199,9 @@ export default function RelationshipGraph({ isOpen, onClose, projectId }: Relati
             <Link className="h-5 w-5" />
             Story Relationships
           </DialogTitle>
+          <DialogDescription>
+            Visualize connections between characters, locations, and events in your story.
+          </DialogDescription>
           
           <div className="flex gap-4 mt-4">
             <div className="flex-1">

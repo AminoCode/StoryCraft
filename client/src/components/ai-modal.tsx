@@ -70,7 +70,9 @@ export default function AiModal({ isOpen, onClose, content, projectId }: AiModal
             <Wand2 className="text-blue-600" size={20} />
             <span>AI Writing Assistant</span>
           </DialogTitle>
-
+          <DialogDescription>
+            Get intelligent suggestions to improve your writing style and content.
+          </DialogDescription>
         </DialogHeader>
         
         <div className="space-y-4">
