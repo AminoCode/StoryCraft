@@ -363,7 +363,7 @@ export default function WriterPage() {
         {/* Left Sidebar for Chapter Navigation */}
         <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
           {/* Project Header */}
-          <div className="p-4 border-b border-gray-200">
+          <div className="p-4 border-b border-gray-200 pt-[4px] pb-[4px]">
             <Link href="/projects">
               <Button variant="ghost" size="sm" className="w-full justify-start gap-2 mb-3">
                 <ArrowLeft className="h-4 w-4" />
@@ -599,7 +599,6 @@ export default function WriterPage() {
         )}
       </div>
       </ThemeProvider>
-
       {/* Grammar Suggestions Panel */}
       {showGrammarSuggestions && (
         <GrammarSuggestionsPanel
@@ -607,37 +606,31 @@ export default function WriterPage() {
           onClose={() => setShowGrammarSuggestions(false)}
         />
       )}
-      
       <AiModal
         isOpen={showAiModal}
         onClose={() => setShowAiModal(false)}
         content={content}
         projectId={projectId}
       />
-
       <ExportModal
         isOpen={showExportModal}
         onClose={() => setShowExportModal(false)}
         document={currentChapter || document}
       />
-
       <ThesaurusModal
         isOpen={showThesaurusModal}
         onClose={() => setShowThesaurusModal(false)}
       />
-
       <QuickFormatModal
         isOpen={showQuickFormatModal}
         onClose={() => setShowQuickFormatModal(false)}
         onFormat={handleQuickFormatApply}
       />
-
       <RelationshipGraph
         isOpen={showRelationshipView}
         onClose={() => setShowRelationshipView(false)}
         projectId={projectId}
       />
-
       {/* New Chapter Dialog */}
       <Dialog open={showNewChapterDialog} onOpenChange={setShowNewChapterDialog}>
         <DialogContent className="sm:max-w-[425px] bg-white border border-gray-200">
@@ -677,7 +670,6 @@ export default function WriterPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
       {/* Delete Chapter Dialog */}
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <DialogContent className="bg-white border border-gray-200">

@@ -72,7 +72,16 @@ export default function RichTextEditor({
   };
 
   return (
-    <div style={{ height: '100vh', overflowY: 'auto', backgroundColor: 'white' }}>
+    <div 
+      style={{ 
+        height: '100%',
+        maxHeight: '100%', 
+        overflowY: 'auto !important',
+        overflowX: 'hidden',
+        backgroundColor: 'white'
+      }}
+      className="flex-1"
+    >
       <div
         ref={editorRef}
         className="rich-text-editor prose max-w-none font-serif leading-relaxed focus:outline-none bg-white text-gray-900 p-8"
@@ -82,8 +91,9 @@ export default function RichTextEditor({
           fontSize: style?.fontSize || '18px', 
           lineHeight: style?.lineHeight || '1.7',
           fontFamily: style?.fontFamily || 'serif',
-          minHeight: '300vh',
+          minHeight: '200vh',
           height: 'auto',
+          width: '100%',
           ...style
         }}
         suppressContentEditableWarning={true}
