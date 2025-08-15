@@ -37,9 +37,9 @@ export interface IStorage {
   // Project operations
   getAllProjects(): Promise<Project[]>;
   getProjectsByUser(userId: string): Promise<Project[]>;
-  getProject(id: string): Promise<Project | undefined>;
-  createProject(project: InsertProject): Promise<Project>;
-  updateProject(id: string, updates: Partial<Project>): Promise<Project | undefined>;
+    getProject(id: string): Promise<Project | undefined>;
+    createProject(project: InsertProject & { userId: string }): Promise<Project>;
+    updateProject(id: string, updates: Partial<Project>): Promise<Project | undefined>;
   deleteProject(id: string): Promise<boolean>;
   
   // Chapter operations
@@ -120,7 +120,7 @@ export class DatabaseStorage implements IStorage {
     return project;
   }
 
-  async createProject(insertProject: InsertProject): Promise<Project> {
+  async createProject(insertProject: InsertProject & { userId: string }): Promise<Project> {
     const [project] = await db
       .insert(projects)
       .values({
@@ -142,7 +142,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteProject(id: string): Promise<boolean> {
     const result = await db.delete(projects).where(eq(projects.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   // Chapter operations
@@ -176,7 +176,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteChapter(id: string): Promise<boolean> {
     const result = await db.delete(chapters).where(eq(chapters.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   // Document operations (for compatibility)
@@ -204,7 +204,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteDocument(id: string): Promise<boolean> {
     const result = await db.delete(documents).where(eq(documents.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   // Character operations
@@ -232,7 +232,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteCharacter(id: string): Promise<boolean> {
     const result = await db.delete(characters).where(eq(characters.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   // Location operations
@@ -260,7 +260,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteLocation(id: string): Promise<boolean> {
     const result = await db.delete(locations).where(eq(locations.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   // Timeline operations
@@ -289,7 +289,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteTimelineEvent(id: string): Promise<boolean> {
     const result = await db.delete(timelineEvents).where(eq(timelineEvents.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   // AI Suggestions operations
@@ -317,7 +317,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteAiSuggestion(id: string): Promise<boolean> {
     const result = await db.delete(aiSuggestions).where(eq(aiSuggestions.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 }
 
@@ -414,18 +414,18 @@ As she approached the library door, Sarah noticed something peculiar. The doorkn
   }
 
   async getProjectsByUser(userId: string): Promise<Project[]> {
-    return Array.from(this.projects.values())
-      .filter(project => (project as any).userId === userId)
-      .sort((a, b) => 
-        new Date(b.lastOpened || 0).getTime() - new Date(a.lastOpened || 0).getTime()
-      );
-  }
+      return Array.from(this.projects.values())
+        .filter(project => project.userId === userId)
+        .sort((a, b) =>
+          new Date(b.lastOpened || 0).getTime() - new Date(a.lastOpened || 0).getTime()
+        );
+    }
 
   async getProject(id: string): Promise<Project | undefined> {
     return this.projects.get(id);
   }
 
-  async createProject(insertProject: InsertProject): Promise<Project> {
+  async createProject(insertProject: InsertProject & { userId: string }): Promise<Project> {
     const id = randomUUID();
     const project: Project = {
       id,
