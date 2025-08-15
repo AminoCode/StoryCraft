@@ -9,12 +9,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import FloatingToolbar from "@/components/floating-toolbar";
+import EnhancedToolbar from "@/components/enhanced-toolbar";
 import RichTextEditor from "@/components/rich-text-editor";
 import ContextualSidebar from "@/components/contextual-sidebar";
 import AiModal from "@/components/ai-modal";
 import ExportModal from "@/components/export-modal";
 import ThesaurusModal from "@/components/thesaurus-modal";
+import QuickFormatModal from "@/components/quick-format-modal";
+import RelationshipGraph from "@/components/relationship-graph";
+
 import { useWritingAssistant } from "@/hooks/use-writing-assistant";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
@@ -30,10 +33,16 @@ export default function WriterPage() {
   const [showExportModal, setShowExportModal] = useState(false);
   const [showNewChapterDialog, setShowNewChapterDialog] = useState(false);
   const [showThesaurusModal, setShowThesaurusModal] = useState(false);
+  const [showQuickFormatModal, setShowQuickFormatModal] = useState(false);
+  const [showRelationshipView, setShowRelationshipView] = useState(false);
   const [content, setContent] = useState("");
   const [wordCount, setWordCount] = useState(0);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [newChapterTitle, setNewChapterTitle] = useState("");
+  const [layoutMode, setLayoutMode] = useState<"sidebar" | "bottom">("sidebar");
+  const [fontSize, setFontSize] = useState("16px");
+  const [fontFamily, setFontFamily] = useState("serif");
+  const [lineSpacing, setLineSpacing] = useState("1.5");
   
   const { toast } = useToast();
 
@@ -156,6 +165,67 @@ export default function WriterPage() {
     setShowThesaurusModal(true);
   };
 
+  const handleQuickFormat = () => {
+    setShowQuickFormatModal(true);
+  };
+
+  const handleRelationshipView = () => {
+    setShowRelationshipView(true);
+  };
+
+  const toggleLayout = () => {
+    setLayoutMode(layoutMode === "sidebar" ? "bottom" : "sidebar");
+  };
+
+  const handleSpellCheck = () => {
+    // Basic spell check implementation using browser's built-in features
+    const textEditor = window.document.querySelector('[contenteditable="true"]') as HTMLElement;
+    if (textEditor) {
+      textEditor.spellcheck = true;
+      textEditor.focus();
+    }
+    toast({ title: "Spell Check", description: "Spell check enabled. Right-click on red underlined words for suggestions." });
+  };
+
+  const handleQuickFormatApply = (formatType: string) => {
+    // Implementation for different formatting types
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return;
+
+    const range = selection.getRangeAt(0);
+    const selectedText = range.toString();
+    
+    let formattedText = selectedText;
+    
+    switch (formatType) {
+      case "dialogue-standard":
+        formattedText = `"${selectedText.replace(/^["']|["']$/g, '')}"`;
+        break;
+      case "dialogue-script":
+        formattedText = `CHARACTER\n${selectedText}`;
+        break;
+      case "dialogue-minimal":
+        formattedText = `—${selectedText}`;
+        break;
+      case "paragraph-indent":
+        formattedText = `    ${selectedText}`;
+        break;
+      case "center-text":
+        window.document.execCommand('justifyCenter');
+        return;
+      case "list-bulleted":
+        window.document.execCommand('insertUnorderedList');
+        return;
+      case "list-numbered":
+        window.document.execCommand('insertOrderedList');
+        return;
+    }
+    
+    if (formattedText !== selectedText) {
+      window.document.execCommand('insertText', false, formattedText);
+    }
+  };
+
   // Auto-save functionality
   useEffect(() => {
     if (!chapterId || !currentChapter) return;
@@ -181,11 +251,21 @@ export default function WriterPage() {
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
-      <FloatingToolbar
+      <EnhancedToolbar
         onAiSuggestions={handleAiSuggestions}
         onExport={handleExport}
-        onFormatDialogue={handleFormatDialogue}
+        onQuickFormat={handleQuickFormat}
         onThesaurus={handleThesaurus}
+        onRelationshipView={handleRelationshipView}
+        onLayoutToggle={toggleLayout}
+        onSpellCheck={handleSpellCheck}
+        layoutMode={layoutMode}
+        onFontSizeChange={setFontSize}
+        onFontFamilyChange={setFontFamily}
+        onLineSpacingChange={setLineSpacing}
+        currentFontSize={fontSize}
+        currentFontFamily={fontFamily}
+        currentLineSpacing={lineSpacing}
       />
       
       {/* Project Navigation Header */}
@@ -313,22 +393,54 @@ export default function WriterPage() {
           </div>
         </div>
         
-        <div className="flex-1 flex">
-          {/* Main Writing Area */}
-          <div className="flex-1 bg-white">
-            <RichTextEditor
-              content={content}
-              onChange={handleContentChange}
-              documentId={chapterId || "default-doc"}
+        {layoutMode === "sidebar" ? (
+          <div className="flex-1 flex">
+            {/* Main Writing Area */}
+            <div className="flex-1 bg-white">
+              <RichTextEditor
+                content={content}
+                onChange={handleContentChange}
+                documentId={chapterId || "default-doc"}
+                projectId={projectId}
+                style={{ 
+                  fontSize, 
+                  fontFamily, 
+                  lineHeight: lineSpacing 
+                }}
+              />
+            </div>
+
+            <ContextualSidebar 
+              documentId={chapterId || "default-doc"} 
               projectId={projectId}
             />
           </div>
+        ) : (
+          <div className="flex-1 flex flex-col">
+            {/* Main Writing Area */}
+            <div className="flex-1 bg-white">
+              <RichTextEditor
+                content={content}
+                onChange={handleContentChange}
+                documentId={chapterId || "default-doc"}
+                projectId={projectId}
+                style={{ 
+                  fontSize, 
+                  fontFamily, 
+                  lineHeight: lineSpacing 
+                }}
+              />
+            </div>
 
-          <ContextualSidebar 
-            documentId={chapterId || "default-doc"} 
-            projectId={projectId}
-          />
-        </div>
+            {/* Bottom Panel for Story Elements */}
+            <div className="h-80 border-t border-gray-200">
+              <ContextualSidebar 
+                documentId={chapterId || "default-doc"} 
+                projectId={projectId}
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       
@@ -336,6 +448,7 @@ export default function WriterPage() {
         isOpen={showAiModal}
         onClose={() => setShowAiModal(false)}
         content={content}
+        projectId={projectId}
       />
 
       <ExportModal
@@ -347,6 +460,18 @@ export default function WriterPage() {
       <ThesaurusModal
         isOpen={showThesaurusModal}
         onClose={() => setShowThesaurusModal(false)}
+      />
+
+      <QuickFormatModal
+        isOpen={showQuickFormatModal}
+        onClose={() => setShowQuickFormatModal(false)}
+        onFormat={handleQuickFormatApply}
+      />
+
+      <RelationshipGraph
+        isOpen={showRelationshipView}
+        onClose={() => setShowRelationshipView(false)}
+        projectId={projectId}
       />
     </div>
   );

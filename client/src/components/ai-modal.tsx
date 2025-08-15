@@ -9,6 +9,7 @@ interface AiModalProps {
   isOpen: boolean;
   onClose: () => void;
   content: string;
+  projectId?: string;
 }
 
 interface Suggestion {
@@ -18,7 +19,7 @@ interface Suggestion {
   action?: () => void;
 }
 
-export default function AiModal({ isOpen, onClose, content }: AiModalProps) {
+export default function AiModal({ isOpen, onClose, content, projectId }: AiModalProps) {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { analyzeText } = useWritingAssistant();

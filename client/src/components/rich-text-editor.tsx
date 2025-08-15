@@ -3,11 +3,12 @@ import { useWritingAssistant } from "@/hooks/use-writing-assistant";
 import { Button } from "@/components/ui/button";
 import { Lightbulb, X, Check } from "lucide-react";
 
-interface RichTextEditorProps {
+export interface RichTextEditorProps {
   content: string;
   onChange: (content: string) => void;
   documentId: string;
   projectId?: string;
+  style?: React.CSSProperties;
 }
 
 interface AiSuggestion {
@@ -18,7 +19,7 @@ interface AiSuggestion {
   reason?: string;
 }
 
-export default function RichTextEditor({ content, onChange, documentId, projectId }: RichTextEditorProps) {
+export default function RichTextEditor({ content, onChange, documentId, projectId, style }: RichTextEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
   const [showPrompt, setShowPrompt] = useState(false);
   const [writingPrompt, setWritingPrompt] = useState("");
@@ -105,7 +106,12 @@ export default function RichTextEditor({ content, onChange, documentId, projectI
           className="rich-text-editor prose dark:prose-invert max-w-none font-serif leading-relaxed min-h-96 focus:outline-none bg-background text-foreground"
           contentEditable
           onInput={handleInput}
-          style={{ fontSize: '18px', lineHeight: '1.7' }}
+          style={{ 
+            fontSize: style?.fontSize || '18px', 
+            lineHeight: style?.lineHeight || '1.7',
+            fontFamily: style?.fontFamily || 'serif',
+            ...style
+          }}
           suppressContentEditableWarning={true}
         />
 
