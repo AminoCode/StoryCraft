@@ -143,7 +143,7 @@ export default function ContextualSidebar({ documentId, projectId, isBottomLayou
   };
 
   return (
-    <div className={`bg-white border-gray-200 flex flex-col h-full overflow-hidden ${
+    <div className={`bg-white border-gray-200 flex flex-col h-full ${
       isBottomLayout 
         ? 'w-full border-t flex-row' 
         : 'w-full'
