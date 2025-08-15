@@ -80,7 +80,7 @@ export default function QuickFormatModal({ isOpen, onClose, onFormat }: QuickFor
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-full max-w-4xl max-h-[80vh]">
+      <DialogContent className="w-full max-w-4xl max-h-[80vh] bg-white border border-gray-200">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Type className="h-5 w-5" />

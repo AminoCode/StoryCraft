@@ -72,7 +72,7 @@ export default function EnhancedToolbar({
   };
 
   return (
-    <div className="w-16 bg-white dark:bg-gray-800 shadow-lg border-r border-gray-200 dark:border-gray-700 flex flex-col items-center py-4 space-y-2 z-20 overflow-y-auto max-h-screen">
+    <div className="w-16 bg-white shadow-lg border-r border-gray-200 flex flex-col items-center py-4 space-y-2 z-20 overflow-y-auto max-h-screen">
       {/* Logo/Brand */}
       <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
         <Feather className="text-white text-lg" size={20} />

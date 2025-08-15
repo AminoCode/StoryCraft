@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Wand2 } from "lucide-react";
@@ -64,12 +64,13 @@ export default function AiModal({ isOpen, onClose, content, projectId }: AiModal
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-96 max-w-90vw">
+      <DialogContent className="w-96 max-w-90vw bg-white border border-gray-200">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
             <Wand2 className="text-blue-600" size={20} />
             <span>AI Writing Assistant</span>
           </DialogTitle>
+
         </DialogHeader>
         
         <div className="space-y-4">

@@ -52,7 +52,7 @@ export default function ExportModal({ isOpen, onClose, document }: ExportModalPr
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-96 max-w-90vw">
+      <DialogContent className="w-96 max-w-90vw bg-white border border-gray-200">
         <DialogHeader>
           <DialogTitle>Export Document</DialogTitle>
         </DialogHeader>

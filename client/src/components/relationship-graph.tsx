@@ -179,7 +179,7 @@ export default function RelationshipGraph({ isOpen, onClose, projectId }: Relati
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-full max-w-6xl h-[90vh] p-0">
+      <DialogContent className="w-full max-w-6xl h-[90vh] p-0 bg-white border border-gray-200">
         <DialogHeader className="p-6 pb-4">
           <DialogTitle className="flex items-center gap-2">
             <Link className="h-5 w-5" />

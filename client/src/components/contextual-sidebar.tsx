@@ -251,7 +251,7 @@ export default function ContextualSidebar({ documentId, projectId, isBottomLayou
                       Add New Character
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="sm:max-w-[425px]">
+                  <DialogContent className="sm:max-w-[425px] bg-white border border-gray-200">
                     <DialogHeader>
                       <DialogTitle>Add New Character</DialogTitle>
                       <DialogDescription>
@@ -381,7 +381,7 @@ export default function ContextualSidebar({ documentId, projectId, isBottomLayou
                       Add New Location
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="sm:max-w-[425px]">
+                  <DialogContent className="sm:max-w-[425px] bg-white border border-gray-200">
                     <DialogHeader>
                       <DialogTitle>Add New Location</DialogTitle>
                       <DialogDescription>
@@ -496,7 +496,7 @@ export default function ContextualSidebar({ documentId, projectId, isBottomLayou
                       Add Timeline Event
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="sm:max-w-[425px]">
+                  <DialogContent className="sm:max-w-[425px] bg-white border border-gray-200">
                     <DialogHeader>
                       <DialogTitle>Add Timeline Event</DialogTitle>
                       <DialogDescription>

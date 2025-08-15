@@ -51,7 +51,7 @@ export default function ThesaurusModal({ isOpen, onClose }: ThesaurusModalProps)
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-full max-w-2xl max-h-[80vh]">
+      <DialogContent className="w-full max-w-2xl max-h-[80vh] bg-white border border-gray-200">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Book className="h-5 w-5" />

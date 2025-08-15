@@ -632,7 +632,7 @@ export default function WriterPage() {
 
       {/* New Chapter Dialog */}
       <Dialog open={showNewChapterDialog} onOpenChange={setShowNewChapterDialog}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px] bg-white border border-gray-200">
           <DialogHeader>
             <DialogTitle>Create New Chapter</DialogTitle>
             <DialogDescription>
@@ -672,7 +672,7 @@ export default function WriterPage() {
 
       {/* Delete Chapter Dialog */}
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <DialogContent>
+        <DialogContent className="bg-white border border-gray-200">
           <DialogHeader>
             <DialogTitle>Delete Chapter</DialogTitle>
             <DialogDescription>
