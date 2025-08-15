@@ -70,9 +70,10 @@
 
 /* Rich text editor styles */
 .rich-text-editor {
-  @apply min-h-96 p-6 bg-white text-gray-900;
+  @apply bg-white text-gray-900;
   font-family: 'Georgia', 'Times New Roman', serif;
   line-height: 1.8;
+  overflow-y: auto;
 }
 
 .rich-text-editor:focus {

@@ -143,44 +143,44 @@ export default function ContextualSidebar({ documentId, projectId, isBottomLayou
   };
 
   return (
-    <div className={`bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 flex flex-col h-full ${
+    <div className={`bg-white border-gray-200 flex flex-col h-full ${
       isBottomLayout 
         ? 'w-full border-t flex-row' 
         : 'w-full'
     }`}>
       {/* Sidebar Header */}
-      <div className={`border-gray-200 dark:border-gray-700 p-4 flex-shrink-0 ${
+      <div className={`border-gray-200 p-4 flex-shrink-0 ${
         isBottomLayout ? 'border-r' : 'border-b'
       }`}>
-        <h2 className="font-semibold text-gray-900 dark:text-gray-100">Story Elements</h2>
+        <h2 className="font-semibold text-gray-900">Story Elements</h2>
       </div>
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className={`flex-1 flex min-h-0 ${
         isBottomLayout ? 'flex-row' : 'flex-col'
       }`}>
-        <TabsList className={`grid border-gray-200 dark:border-gray-700 rounded-none h-auto bg-transparent flex-shrink-0 ${
+        <TabsList className={`grid border-gray-200 rounded-none h-auto bg-transparent flex-shrink-0 ${
           isBottomLayout 
             ? 'grid-rows-3 w-auto border-r' 
             : 'grid-cols-3 w-full border-b'
         }`}>
           <TabsTrigger 
             value="characters" 
-            className="flex items-center space-x-1 px-3 py-3 text-sm font-medium data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600"
+            className="flex items-center space-x-1 px-3 py-3 text-sm font-medium data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600"
           >
             <Users size={16} />
             <span>Characters</span>
           </TabsTrigger>
           <TabsTrigger 
             value="locations"
-            className="flex items-center space-x-1 px-3 py-3 text-sm font-medium data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600"
+            className="flex items-center space-x-1 px-3 py-3 text-sm font-medium data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600"
           >
             <MapPin size={16} />
             <span>Locations</span>
           </TabsTrigger>
           <TabsTrigger 
             value="timeline"
-            className="flex items-center space-x-1 px-3 py-3 text-sm font-medium data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600"
+            className="flex items-center space-x-1 px-3 py-3 text-sm font-medium data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600"
           >
             <Clock size={16} />
             <span>Timeline</span>

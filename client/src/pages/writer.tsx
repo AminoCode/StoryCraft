@@ -580,12 +580,14 @@ export default function WriterPage() {
             </div>
 
             {/* Bottom Panel for Story Elements */}
-            <div className="h-80 border-t border-gray-200 overflow-hidden">
-              <ContextualSidebar 
-                documentId={chapterId || "default-doc"} 
-                projectId={projectId}
-                isBottomLayout={true}
-              />
+            <div className="h-80 border-t border-gray-200 bg-white">
+              <div className="h-full overflow-auto">
+                <ContextualSidebar 
+                  documentId={chapterId || "default-doc"} 
+                  projectId={projectId}
+                  isBottomLayout={true}
+                />
+              </div>
             </div>
           </div>
         )}
