@@ -69,10 +69,10 @@ export default function WriterPage() {
     enabled: !!chapterId,
   });
 
-  // Fallback to document API for compatibility
+  // Fallback to document API for compatibility - only when needed
   const { data: document, isLoading: isDocumentLoading } = useQuery<Document>({
     queryKey: ["/api/documents", "default-doc"],
-    enabled: !chapterId,
+    enabled: !chapterId && !isChaptersLoading && chapters.length === 0,
   });
 
   const { 

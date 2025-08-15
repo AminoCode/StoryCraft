@@ -7,6 +7,28 @@ This is a full-stack writing assistance application built to help authors accele
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+Force light mode only - dark mode disabled due to readability issues.
+
+## Recent Changes (August 15, 2025)
+
+### Scrolling System Overhaul
+- Completely rebuilt scrolling architecture using inline styles and CSS !important overrides
+- Fixed rich text editor scrolling with proper overflow-y: auto containers
+- Resolved contextual sidebar scrolling issues in both sidebar and bottom panel layouts
+- Applied nuclear approach to override all Tailwind CSS constraints preventing scrolling
+
+### UI/Layout Improvements  
+- Fixed bottom panel layout visibility and proper flex direction switching
+- Rebuilt horizontal timeline with proper horizontal scrolling and constrained height (140px)
+- Resolved dialog transparency issues with solid white backgrounds
+- Fixed missing Lucide React icons (Users, MapPin, Clock) in story elements
+- Eliminated 404 error flash by improving document loading logic conditions
+
+### Technical Architecture
+- Enhanced contextual sidebar to properly adapt between sidebar/bottom layouts
+- Improved timeline component with flex-shrink: 0 and consistent card sizing
+- Applied global CSS overrides to ensure scrolling works throughout the application
+- Optimized query conditions to prevent unnecessary API calls on page load
 
 ## System Architecture
 
