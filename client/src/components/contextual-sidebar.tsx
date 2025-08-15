@@ -20,7 +20,7 @@ interface ContextualSidebarProps {
 }
 
 export default function ContextualSidebar({ documentId, projectId, isBottomLayout = false }: ContextualSidebarProps) {
-  const [activeTab, setActiveTab] = useState("suggestions");
+  const [activeTab, setActiveTab] = useState("characters");
   const [showNewCharacterDialog, setShowNewCharacterDialog] = useState(false);
   const [showNewLocationDialog, setShowNewLocationDialog] = useState(false);
   const [showNewTimelineDialog, setShowNewTimelineDialog] = useState(false);
@@ -146,7 +146,7 @@ export default function ContextualSidebar({ documentId, projectId, isBottomLayou
     <div className={`bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 flex flex-col h-full ${
       isBottomLayout 
         ? 'w-full border-t flex-row' 
-        : 'w-80 border-l'
+        : 'w-full'
     }`}>
       {/* Sidebar Header */}
       <div className={`border-gray-200 dark:border-gray-700 p-4 flex-shrink-0 ${
@@ -161,16 +161,9 @@ export default function ContextualSidebar({ documentId, projectId, isBottomLayou
       }`}>
         <TabsList className={`grid border-gray-200 dark:border-gray-700 rounded-none h-auto bg-transparent flex-shrink-0 ${
           isBottomLayout 
-            ? 'grid-rows-4 w-auto border-r' 
-            : 'grid-cols-4 w-full border-b'
+            ? 'grid-rows-3 w-auto border-r' 
+            : 'grid-cols-3 w-full border-b'
         }`}>
-          <TabsTrigger 
-            value="suggestions" 
-            className="flex items-center space-x-1 px-3 py-3 text-sm font-medium data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600"
-          >
-            <Brain size={16} />
-            <span>Suggestions</span>
-          </TabsTrigger>
           <TabsTrigger 
             value="characters" 
             className="flex items-center space-x-1 px-3 py-3 text-sm font-medium data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600"
@@ -195,73 +188,6 @@ export default function ContextualSidebar({ documentId, projectId, isBottomLayou
         </TabsList>
 
         <div className="flex-1 min-h-0 relative">
-          <TabsContent value="suggestions" className="absolute inset-0 p-0 m-0">
-            <div className={`p-4 space-y-4 h-full ${isBottomLayout ? 'overflow-x-auto overflow-y-auto' : 'overflow-y-auto'}`}>
-              {/* AI Writing Suggestions */}
-              <Card className="bg-gradient-to-br from-purple-50 to-blue-50 border-purple-200">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Brain size={16} className="text-purple-600" />
-                    <h3 className="font-semibold text-purple-900">Writing Suggestions</h3>
-                  </div>
-                  <div className="space-y-3 text-sm">
-                    <div className="p-3 bg-white/70 rounded-lg border border-purple-100">
-                      <div className="font-medium text-purple-800 mb-1">Pacing</div>
-                      <div className="text-purple-700">Consider adding more tension to build toward the climax. The current scene could benefit from shorter, sharper sentences.</div>
-                    </div>
-                    <div className="p-3 bg-white/70 rounded-lg border border-purple-100">
-                      <div className="font-medium text-purple-800 mb-1">Character Development</div>
-                      <div className="text-purple-700">Sarah's motivations could be clearer. Consider adding internal dialogue to show her thought process.</div>
-                    </div>
-                    <div className="p-3 bg-white/70 rounded-lg border border-purple-100">
-                      <div className="font-medium text-purple-800 mb-1">Setting</div>
-                      <div className="text-purple-700">The mansion's atmosphere is strong. Add more sensory details about sounds and smells to enhance immersion.</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Style Improvements */}
-              <Card className="bg-gradient-to-br from-green-50 to-teal-50 border-green-200">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Edit3 size={16} className="text-green-600" />
-                    <h3 className="font-semibold text-green-900">Style Improvements</h3>
-                  </div>
-                  <div className="space-y-3 text-sm">
-                    <div className="p-3 bg-white/70 rounded-lg border border-green-100">
-                      <div className="font-medium text-green-800 mb-1">Word Choice</div>
-                      <div className="text-green-700">"Walked" could be more specific. Consider: "crept," "strode," or "tiptoed" to better convey Sarah's mood.</div>
-                    </div>
-                    <div className="p-3 bg-white/70 rounded-lg border border-green-100">
-                      <div className="font-medium text-green-800 mb-1">Sentence Variety</div>
-                      <div className="text-green-700">Mix sentence lengths for better flow. Some longer, complex sentences followed by short, punchy ones.</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Grammar & Clarity */}
-              <Card className="bg-gradient-to-br from-orange-50 to-red-50 border-orange-200">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <RefreshCw size={16} className="text-orange-600" />
-                    <h3 className="font-semibold text-orange-900">Grammar & Clarity</h3>
-                  </div>
-                  <div className="space-y-3 text-sm">
-                    <div className="p-3 bg-white/70 rounded-lg border border-orange-100">
-                      <div className="font-medium text-orange-800 mb-1">Passive Voice</div>
-                      <div className="text-orange-700">Line 3: "The door was opened" → "She opened the door" for more active writing.</div>
-                    </div>
-                    <div className="p-3 bg-white/70 rounded-lg border border-orange-100">
-                      <div className="font-medium text-orange-800 mb-1">Clarity</div>
-                      <div className="text-orange-700">The pronoun "it" in paragraph 2 is ambiguous. Specify what "it" refers to.</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
 
           <TabsContent value="characters" className="absolute inset-0 p-0 m-0">
             <div className={`p-4 space-y-4 h-full ${isBottomLayout ? 'overflow-x-auto overflow-y-auto' : 'overflow-y-auto'}`}>

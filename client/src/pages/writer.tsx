@@ -12,6 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import EnhancedToolbar from "@/components/enhanced-toolbar";
 import RichTextEditor from "@/components/rich-text-editor";
 import ContextualSidebar from "@/components/contextual-sidebar";
+import ResizableSidebar from "@/components/resizable-sidebar";
 import AiModal from "@/components/ai-modal";
 import ExportModal from "@/components/export-modal";
 import ThesaurusModal from "@/components/thesaurus-modal";
@@ -410,11 +411,13 @@ export default function WriterPage() {
               />
             </div>
 
-            <ContextualSidebar 
-              documentId={chapterId || "default-doc"} 
-              projectId={projectId}
-              isBottomLayout={false}
-            />
+            <ResizableSidebar defaultWidth={320} minWidth={250} maxWidth={500}>
+              <ContextualSidebar 
+                documentId={chapterId || "default-doc"} 
+                projectId={projectId}
+                isBottomLayout={false}
+              />
+            </ResizableSidebar>
           </div>
         ) : (
           <div className="flex-1 flex flex-col">

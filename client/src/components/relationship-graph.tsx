@@ -126,7 +126,7 @@ export default function RelationshipGraph({ isOpen, onClose, projectId }: Relati
     });
 
     setConnections(newConnections);
-  }, [characters, locations, timeline]);
+  }, [characters.length, locations.length, timeline.length]);
 
   const filteredNodes = nodes.filter(node => {
     const matchesSearch = node.name.toLowerCase().includes(searchTerm.toLowerCase());
