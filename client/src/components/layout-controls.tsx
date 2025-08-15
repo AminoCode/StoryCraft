@@ -131,20 +131,7 @@ export default function LayoutControls({
         </div>
       </div>
 
-      {/* Horizontal Timeline */}
-      {showHorizontalTimeline && (
-        <div 
-          className="border-t border-gray-200 bg-gray-50"
-          style={{ 
-            height: '140px',
-            maxHeight: '140px',
-            overflowX: 'auto',
-            overflowY: 'hidden'
-          }}
-        >
-          <HorizontalTimeline projectId={projectId} />
-        </div>
-      )}
+
     </div>
   );
 }

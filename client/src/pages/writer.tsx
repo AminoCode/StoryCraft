@@ -21,6 +21,7 @@ import RelationshipGraph from "@/components/relationship-graph";
 import LayoutControls from "@/components/layout-controls";
 import FormatDropdown from "@/components/format-dropdown";
 import GrammarSuggestionsPanel from "@/components/grammar-suggestions-panel";
+import HorizontalTimeline from "@/components/horizontal-timeline";
 import { ThemeProvider } from "@/components/theme-provider";
 
 import { useWritingAssistant } from "@/hooks/use-writing-assistant";
@@ -391,9 +392,9 @@ export default function WriterPage() {
           <div className="flex-1 flex flex-col min-h-0">
             {/* Scrollable Chapter List */}
             <div 
-              className="flex-1"
+              className="flex-1 scrollable-content"
               style={{ 
-                overflowY: 'auto !important',
+                overflowY: 'auto' as const,
                 overflowX: 'hidden',
                 minHeight: 0
               }}
@@ -552,6 +553,22 @@ export default function WriterPage() {
           onHorizontalTimelineToggle={() => setShowHorizontalTimeline(!showHorizontalTimeline)}
           projectId={projectId}
         />
+
+        {/* Horizontal Timeline - Independent Container */}
+        {showHorizontalTimeline && (
+          <div 
+            className="flex-shrink-0 border-b border-gray-200 bg-gray-50"
+            style={{ 
+              height: '140px',
+              minHeight: '140px',
+              maxHeight: '140px',
+              overflowX: 'auto',
+              overflowY: 'hidden'
+            }}
+          >
+            <HorizontalTimeline projectId={projectId} />
+          </div>
+        )}
 
         {/* Writing Area Layout */}
         {layoutMode === "sidebar" ? (
