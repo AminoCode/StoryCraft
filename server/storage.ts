@@ -37,9 +37,9 @@ export interface IStorage {
   // Project operations
   getAllProjects(): Promise<Project[]>;
   getProjectsByUser(userId: string): Promise<Project[]>;
-  getProject(id: string): Promise<Project | undefined>;
-  createProject(project: InsertProject): Promise<Project>;
-  updateProject(id: string, updates: Partial<Project>): Promise<Project | undefined>;
+    getProject(id: string): Promise<Project | undefined>;
+    createProject(project: InsertProject & { userId: string }): Promise<Project>;
+    updateProject(id: string, updates: Partial<Project>): Promise<Project | undefined>;
   deleteProject(id: string): Promise<boolean>;
   
   // Chapter operations
@@ -123,7 +123,7 @@ export class DatabaseStorage implements IStorage {
     return project;
   }
 
-  async createProject(insertProject: InsertProject): Promise<Project> {
+  async createProject(insertProject: InsertProject & { userId: string }): Promise<Project> {
     const [project] = await db
       .insert(projects)
       .values({
@@ -433,18 +433,18 @@ As she approached the library door, Sarah noticed something peculiar. The doorkn
   }
 
   async getProjectsByUser(userId: string): Promise<Project[]> {
-    return Array.from(this.projects.values())
-      .filter(project => (project as any).userId === userId)
-      .sort((a, b) => 
-        new Date(b.lastOpened || 0).getTime() - new Date(a.lastOpened || 0).getTime()
-      );
-  }
+      return Array.from(this.projects.values())
+        .filter(project => project.userId === userId)
+        .sort((a, b) =>
+          new Date(b.lastOpened || 0).getTime() - new Date(a.lastOpened || 0).getTime()
+        );
+    }
 
   async getProject(id: string): Promise<Project | undefined> {
     return this.projects.get(id);
   }
 
-  async createProject(insertProject: InsertProject): Promise<Project> {
+  async createProject(insertProject: InsertProject & { userId: string }): Promise<Project> {
     const id = randomUUID();
     const project: Project = {
       id,
