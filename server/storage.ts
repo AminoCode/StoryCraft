@@ -661,4 +661,5 @@ As she approached the library door, Sarah noticed something peculiar. The doorkn
   }
 }
 
-export const storage = new DatabaseStorage();
+export const storage: IStorage =
+  process.env.NODE_ENV === "test" ? new MemStorage() : new DatabaseStorage();

@@ -193,7 +193,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Keep old route for compatibility
   app.get("/api/documents/:documentId/characters", async (req, res) => {
     try {
-      const characters = await storage.getCharactersByProject("default-project");
+      const { documentId } = req.params;
+
+      // Legacy route: documents are now chapters. Look up the chapter to
+      // determine which project the characters belong to.
+      const chapter = await storage.getChapter(documentId);
+      if (!chapter) {
+        return res.status(404).json({ error: "Document not found" });
+      }
+
+      const characters = await storage.getCharactersByProject(chapter.projectId);
       res.json(characters);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch characters" });
