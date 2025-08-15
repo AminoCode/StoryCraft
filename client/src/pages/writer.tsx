@@ -21,6 +21,7 @@ import RelationshipGraph from "@/components/relationship-graph";
 import LayoutControls from "@/components/layout-controls";
 import FormatDropdown from "@/components/format-dropdown";
 import GrammarSuggestionsPanel from "@/components/grammar-suggestions-panel";
+import { ThemeProvider } from "@/components/theme-provider";
 
 import { useWritingAssistant } from "@/hooks/use-writing-assistant";
 import { useToast } from "@/hooks/use-toast";
@@ -389,7 +390,7 @@ export default function WriterPage() {
                       ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
                       : "hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
                   }`}
-                  onClick={() => navigate(`/writer/${projectId}/${chapter.id}`)}
+                  onClick={() => window.location.href = `/writer/${projectId}/${chapter.id}`}
                   data-testid={`chapter-${chapter.id}`}
                 >
                   <div className="flex-1 min-w-0">
