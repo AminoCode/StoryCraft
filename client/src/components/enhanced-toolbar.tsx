@@ -43,6 +43,7 @@ interface EnhancedToolbarProps {
   currentFontSize: string;
   currentFontFamily: string;
   currentLineSpacing: string;
+  children?: React.ReactNode;
 }
 
 export default function EnhancedToolbar({ 
@@ -59,7 +60,8 @@ export default function EnhancedToolbar({
   onLineSpacingChange,
   currentFontSize,
   currentFontFamily,
-  currentLineSpacing
+  currentLineSpacing,
+  children
 }: EnhancedToolbarProps) {
   const handleFormatting = (command: string, value?: string) => {
     document.execCommand(command, false, value);
@@ -70,7 +72,7 @@ export default function EnhancedToolbar({
   };
 
   return (
-    <div className="w-16 bg-white shadow-lg border-r border-gray-200 flex flex-col items-center py-4 space-y-2 z-20 overflow-y-auto max-h-screen">
+    <div className="w-16 bg-white dark:bg-gray-800 shadow-lg border-r border-gray-200 dark:border-gray-700 flex flex-col items-center py-4 space-y-2 z-20 overflow-y-auto max-h-screen">
       {/* Logo/Brand */}
       <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center mb-2">
         <Feather className="text-white text-lg" size={20} />
@@ -93,7 +95,16 @@ export default function EnhancedToolbar({
         </TooltipContent>
       </Tooltip>
 
-      <div className="w-8 h-px bg-gray-200"></div>
+      <div className="w-8 h-px bg-gray-200 dark:bg-gray-600"></div>
+
+      {/* Format Dropdown (from children) */}
+      {children && (
+        <div className="mb-2">
+          {children}
+        </div>
+      )}
+
+      <div className="w-8 h-px bg-gray-200 dark:bg-gray-600"></div>
 
       {/* Font Controls */}
       <div className="flex flex-col items-center space-y-1 w-full px-1">

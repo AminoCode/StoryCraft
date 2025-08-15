@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useWritingAssistant } from "@/hooks/use-writing-assistant";
 import { Button } from "@/components/ui/button";
-import { Lightbulb, X, Check } from "lucide-react";
+import { Lightbulb } from "lucide-react";
+import GrammarSuggestionsPanel from "@/components/grammar-suggestions-panel";
 
 export interface RichTextEditorProps {
   content: string;
@@ -9,6 +10,9 @@ export interface RichTextEditorProps {
   documentId: string;
   projectId?: string;
   style?: React.CSSProperties;
+  suggestions?: AiSuggestion[];
+  onApplySuggestion?: (suggestion: AiSuggestion) => void;
+  onDismissSuggestion?: (suggestion: AiSuggestion) => void;
 }
 
 interface AiSuggestion {
@@ -19,11 +23,20 @@ interface AiSuggestion {
   reason?: string;
 }
 
-export default function RichTextEditor({ content, onChange, documentId, projectId, style }: RichTextEditorProps) {
+export default function RichTextEditor({ 
+  content, 
+  onChange, 
+  documentId, 
+  projectId, 
+  style,
+  suggestions = [],
+  onApplySuggestion,
+  onDismissSuggestion
+}: RichTextEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
   const [showPrompt, setShowPrompt] = useState(false);
   const [writingPrompt, setWritingPrompt] = useState("");
-  const [suggestions, setSuggestions] = useState<AiSuggestion[]>([]);
+
   const { generateWritingPrompt, analyzeText } = useWritingAssistant();
 
   useEffect(() => {
@@ -48,9 +61,7 @@ export default function RichTextEditor({ content, onChange, documentId, projectI
   const analyzeSuggestions = async (text: string) => {
     try {
       const result = await analyzeText(text, projectId);
-      if (result?.suggestions) {
-        setSuggestions(result.suggestions);
-      }
+      // Suggestions are handled by parent component
       
       // If entities were auto-updated, refresh the sidebar data
       if (result?.autoUpdated && projectId) {
@@ -88,14 +99,12 @@ export default function RichTextEditor({ content, onChange, documentId, projectI
       );
       editorRef.current.innerHTML = updatedContent;
       onChange(updatedContent);
-      
-      // Remove the applied suggestion
-      setSuggestions(prev => prev.filter(s => s !== suggestion));
     }
+    onApplySuggestion?.(suggestion);
   };
 
   const dismissSuggestion = (suggestion: AiSuggestion) => {
-    setSuggestions(prev => prev.filter(s => s !== suggestion));
+    onDismissSuggestion?.(suggestion);
   };
 
   return (
@@ -115,44 +124,7 @@ export default function RichTextEditor({ content, onChange, documentId, projectI
           suppressContentEditableWarning={true}
         />
 
-        {/* AI Suggestions */}
-        {suggestions.map((suggestion, index) => (
-          <div key={index} className="p-4 bg-blue-50 border border-blue-200 rounded-lg mt-[5px] mb-[5px] pt-[5px] pb-[5px] ml-[0px] mr-[0px] text-[14px]">
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <div className="flex items-center space-x-2 mb-2">
-                  <span className="text-xs font-medium text-blue-700 capitalize">
-                    {suggestion.type} Suggestion
-                  </span>
-                </div>
-                <p className="text-sm text-blue-600 mb-2">
-                  {suggestion.originalText} → {suggestion.suggestion}
-                </p>
-                {suggestion.reason && (
-                  <p className="text-xs text-blue-500">{suggestion.reason}</p>
-                )}
-              </div>
-              <div className="flex space-x-2 ml-4">
-                <Button
-                  size="sm"
-                  className="h-8 px-3 text-xs bg-blue-600 hover:bg-blue-700"
-                  onClick={() => applySuggestion(suggestion)}
-                >
-                  <Check size={12} className="mr-1" />
-                  Apply
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-8 px-3 text-xs"
-                  onClick={() => dismissSuggestion(suggestion)}
-                >
-                  <X size={12} />
-                </Button>
-              </div>
-            </div>
-          </div>
-        ))}
+        {/* AI Suggestions - Now handled by GrammarSuggestionsPanel at bottom */}
 
         {/* AI Writing Prompt */}
         {showPrompt && (
@@ -194,6 +166,13 @@ export default function RichTextEditor({ content, onChange, documentId, projectI
           </Button>
         </div>
       </div>
+
+      {/* Grammar Suggestions Panel */}
+      <GrammarSuggestionsPanel
+        suggestions={suggestions}
+        onApply={applySuggestion}
+        onDismiss={dismissSuggestion}
+      />
     </div>
   );
 }

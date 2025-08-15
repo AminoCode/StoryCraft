@@ -18,12 +18,15 @@ import ExportModal from "@/components/export-modal";
 import ThesaurusModal from "@/components/thesaurus-modal";
 import QuickFormatModal from "@/components/quick-format-modal";
 import RelationshipGraph from "@/components/relationship-graph";
+import LayoutControls from "@/components/layout-controls";
+import FormatDropdown from "@/components/format-dropdown";
+import GrammarSuggestionsPanel from "@/components/grammar-suggestions-panel";
 
 import { useWritingAssistant } from "@/hooks/use-writing-assistant";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 import { ArrowLeft, Plus, BookOpen, Edit3, Save, Clock } from "lucide-react";
-import type { Project, Chapter, InsertChapter, Document } from "@shared/schema";
+import type { Project, Chapter, InsertChapter, Document, AiSuggestion } from "@shared/schema";
 
 export default function WriterPage() {
   const [, params] = useRoute("/writer/:projectId?/:chapterId?");
@@ -44,6 +47,10 @@ export default function WriterPage() {
   const [fontSize, setFontSize] = useState("16px");
   const [fontFamily, setFontFamily] = useState("serif");
   const [lineSpacing, setLineSpacing] = useState("1.5");
+  const [showHorizontalTimeline, setShowHorizontalTimeline] = useState(false);
+  const [suggestions, setSuggestions] = useState<AiSuggestion[]>([]);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [chapterToDelete, setChapterToDelete] = useState<string | null>(null);
   
   const { toast } = useToast();
 
@@ -90,6 +97,25 @@ export default function WriterPage() {
       toast({
         title: "Chapter created",
         description: "Your new chapter has been created successfully.",
+      });
+    },
+  });
+
+  const deleteChapterMutation = useMutation({
+    mutationFn: async (chapterId: string) => {
+      const response = await fetch(`/api/chapters/${chapterId}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) throw new Error("Failed to delete chapter");
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/projects", projectId, "chapters"] });
+      setShowDeleteDialog(false);
+      setChapterToDelete(null);
+      toast({
+        title: "Chapter deleted",
+        description: "The chapter has been deleted successfully.",
       });
     },
   });
@@ -178,6 +204,68 @@ export default function WriterPage() {
     setLayoutMode(layoutMode === "sidebar" ? "bottom" : "sidebar");
   };
 
+  const handleFormatAction = (type: string, value?: string) => {
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return;
+
+    const range = selection.getRangeAt(0);
+    const selectedText = range.toString();
+    
+    let formattedText = selectedText;
+    
+    switch (type) {
+      case 'bold':
+        document.execCommand('bold');
+        break;
+      case 'italic':
+        document.execCommand('italic');
+        break;
+      case 'align':
+        if (value === 'center') document.execCommand('justifyCenter');
+        else if (value === 'right') document.execCommand('justifyRight');
+        else document.execCommand('justifyLeft');
+        break;
+      case 'dialogue':
+        if (value === 'standard') formattedText = `"${selectedText.replace(/^["']|["']$/g, '')}"`;
+        else if (value === 'thought') formattedText = `*${selectedText}*`;
+        else if (value === 'action') formattedText = `—${selectedText}`;
+        break;
+      case 'list':
+        if (value === 'bullet') document.execCommand('insertUnorderedList');
+        else if (value === 'numbered') document.execCommand('insertOrderedList');
+        break;
+      case 'paragraph':
+        if (value === 'scene-break') formattedText = `\n\n* * *\n\n${selectedText}`;
+        else if (value === 'chapter-break') formattedText = `\n\n\nChapter ${chapters.length + 1}\n\n${selectedText}`;
+        break;
+    }
+    
+    if (formattedText !== selectedText && type === 'dialogue' || type === 'paragraph') {
+      range.deleteContents();
+      range.insertNode(document.createTextNode(formattedText));
+      handleContentChange(document.querySelector('[contenteditable="true"]')?.innerHTML || '');
+    }
+  };
+
+  const handleDeleteChapter = (chapterId: string) => {
+    setChapterToDelete(chapterId);
+    setShowDeleteDialog(true);
+  };
+
+  const confirmDeleteChapter = () => {
+    if (chapterToDelete) {
+      deleteChapterMutation.mutate(chapterToDelete);
+    }
+  };
+
+  const handleApplySuggestion = (suggestion: AiSuggestion) => {
+    setSuggestions(prev => prev.filter(s => s !== suggestion));
+  };
+
+  const handleDismissSuggestion = (suggestion: AiSuggestion) => {
+    setSuggestions(prev => prev.filter(s => s !== suggestion));
+  };
+
   const handleSpellCheck = () => {
     // Basic spell check implementation using browser's built-in features
     const textEditor = window.document.querySelector('[contenteditable="true"]') as HTMLElement;
@@ -240,6 +328,23 @@ export default function WriterPage() {
     return () => clearTimeout(autoSaveTimer);
   }, [content, chapterId, currentChapter]);
 
+  // Effect to redirect to most recently edited chapter when no chapter is specified
+  useEffect(() => {
+    if (!chapterId && chapters.length > 0 && !isChaptersLoading) {
+      // Find the most recently edited chapter (using updatedAt or createdAt field)
+      const sortedChapters = [...chapters].sort((a, b) => {
+        const aTime = new Date(a.updatedAt || a.createdAt).getTime();
+        const bTime = new Date(b.updatedAt || b.createdAt).getTime();
+        return bTime - aTime;
+      });
+      
+      if (sortedChapters.length > 0) {
+        const mostRecentChapter = sortedChapters[0];
+        window.location.href = `/writer/${projectId}/${mostRecentChapter.id}`;
+      }
+    }
+  }, [chapterId, chapters, projectId, isChaptersLoading]);
+
   const isLoading = isProjectLoading || isChaptersLoading || isChapterLoading || isDocumentLoading;
 
   if (isLoading) {
@@ -251,7 +356,7 @@ export default function WriterPage() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
+    <div className="flex h-screen bg-gray-50 dark:bg-gray-900 overflow-hidden">
       <EnhancedToolbar
         onAiSuggestions={handleAiSuggestions}
         onExport={handleExport}
@@ -267,11 +372,13 @@ export default function WriterPage() {
         currentFontSize={fontSize}
         currentFontFamily={fontFamily}
         currentLineSpacing={lineSpacing}
-      />
+      >
+        <FormatDropdown onFormat={handleFormatAction} />
+      </EnhancedToolbar>
       
       {/* Project Navigation Header */}
       <div className="flex-1 flex flex-col">
-        <div className="bg-white border-b border-gray-200 px-6 py-4">
+        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Link href="/projects">
@@ -319,22 +426,43 @@ export default function WriterPage() {
           </div>
         </div>
 
+        {/* Layout Controls */}
+        <LayoutControls
+          layoutMode={layoutMode}
+          onLayoutChange={setLayoutMode}
+          onRelationshipViewToggle={() => setShowRelationshipView(!showRelationshipView)}
+          showRelationshipView={showRelationshipView}
+          showHorizontalTimeline={showHorizontalTimeline}
+          onHorizontalTimelineToggle={() => setShowHorizontalTimeline(!showHorizontalTimeline)}
+          projectId={projectId}
+        />
+
         {/* Chapter Navigation */}
-        <div className="bg-white border-b border-gray-200 px-6 py-3">
+        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-3">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium">Chapters:</span>
               <div className="flex gap-2">
                 {chapters.map((chapter) => (
-                  <Link key={chapter.id} href={`/writer/${projectId}/${chapter.id}`}>
+                  <div key={chapter.id} className="flex items-center gap-1">
+                    <Link href={`/writer/${projectId}/${chapter.id}`}>
+                      <Button
+                        variant={chapterId === chapter.id ? "default" : "outline"}
+                        size="sm"
+                        className="h-8"
+                      >
+                        {chapter.title}
+                      </Button>
+                    </Link>
                     <Button
-                      variant={chapterId === chapter.id ? "default" : "outline"}
+                      variant="ghost"
                       size="sm"
-                      className="h-8"
+                      className="h-6 w-6 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                      onClick={() => handleDeleteChapter(chapter.id)}
                     >
-                      {chapter.title}
+                      ×
                     </Button>
-                  </Link>
+                  </div>
                 ))}
                 
                 <Dialog open={showNewChapterDialog} onOpenChange={setShowNewChapterDialog}>
@@ -397,7 +525,7 @@ export default function WriterPage() {
         {layoutMode === "sidebar" ? (
           <div className="flex-1 flex">
             {/* Main Writing Area */}
-            <div className="flex-1 bg-white">
+            <div className="flex-1 bg-white dark:bg-gray-900">
               <RichTextEditor
                 content={content}
                 onChange={handleContentChange}
@@ -408,6 +536,9 @@ export default function WriterPage() {
                   fontFamily, 
                   lineHeight: lineSpacing 
                 }}
+                suggestions={suggestions}
+                onApplySuggestion={handleApplySuggestion}
+                onDismissSuggestion={handleDismissSuggestion}
               />
             </div>
 
@@ -422,7 +553,7 @@ export default function WriterPage() {
         ) : (
           <div className="flex-1 flex flex-col">
             {/* Main Writing Area */}
-            <div className="flex-1 bg-white">
+            <div className="flex-1 bg-white dark:bg-gray-900">
               <RichTextEditor
                 content={content}
                 onChange={handleContentChange}
@@ -433,6 +564,9 @@ export default function WriterPage() {
                   fontFamily, 
                   lineHeight: lineSpacing 
                 }}
+                suggestions={suggestions}
+                onApplySuggestion={handleApplySuggestion}
+                onDismissSuggestion={handleDismissSuggestion}
               />
             </div>
 
@@ -478,6 +612,30 @@ export default function WriterPage() {
         onClose={() => setShowRelationshipView(false)}
         projectId={projectId}
       />
+
+      {/* Delete Chapter Dialog */}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Chapter</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this chapter? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>
+              Cancel
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={confirmDeleteChapter}
+              disabled={deleteChapterMutation.isPending}
+            >
+              {deleteChapterMutation.isPending ? "Deleting..." : "Delete Chapter"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

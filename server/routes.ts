@@ -133,6 +133,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.delete("/api/chapters/:id", async (req, res) => {
+    try {
+      const result = await storage.deleteChapter(req.params.id);
+      if (!result) {
+        return res.status(404).json({ error: "Chapter not found" });
+      }
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete chapter" });
+    }
+  });
+
   // Document routes
   app.get("/api/documents/:id", async (req, res) => {
     try {
