@@ -117,7 +117,7 @@ export default function RichTextEditor({ content, onChange, documentId, projectI
 
         {/* AI Suggestions */}
         {suggestions.map((suggestion, index) => (
-          <div key={index} className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <div key={index} className="p-4 bg-blue-50 border border-blue-200 rounded-lg mt-[5px] mb-[5px] pt-[5px] pb-[5px] ml-[0px] mr-[0px] text-[14px]">
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <div className="flex items-center space-x-2 mb-2">
@@ -126,7 +126,7 @@ export default function RichTextEditor({ content, onChange, documentId, projectI
                   </span>
                 </div>
                 <p className="text-sm text-blue-600 mb-2">
-                  "{suggestion.originalText}" → "{suggestion.suggestion}"
+                  {suggestion.originalText} → {suggestion.suggestion}
                 </p>
                 {suggestion.reason && (
                   <p className="text-xs text-blue-500">{suggestion.reason}</p>
