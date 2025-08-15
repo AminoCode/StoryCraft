@@ -142,7 +142,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteProject(id: string): Promise<boolean> {
     const result = await db.delete(projects).where(eq(projects.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   // Chapter operations
@@ -176,7 +176,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteChapter(id: string): Promise<boolean> {
     const result = await db.delete(chapters).where(eq(chapters.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   // Document operations (for compatibility)
@@ -204,7 +204,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteDocument(id: string): Promise<boolean> {
     const result = await db.delete(documents).where(eq(documents.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   // Character operations
@@ -232,7 +232,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteCharacter(id: string): Promise<boolean> {
     const result = await db.delete(characters).where(eq(characters.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   // Location operations
@@ -260,7 +260,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteLocation(id: string): Promise<boolean> {
     const result = await db.delete(locations).where(eq(locations.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   // Timeline operations
@@ -289,7 +289,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteTimelineEvent(id: string): Promise<boolean> {
     const result = await db.delete(timelineEvents).where(eq(timelineEvents.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   // AI Suggestions operations
@@ -317,7 +317,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteAiSuggestion(id: string): Promise<boolean> {
     const result = await db.delete(aiSuggestions).where(eq(aiSuggestions.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 }
 

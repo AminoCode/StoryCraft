@@ -56,59 +56,50 @@ export default function RelationshipGraph({ isOpen, onClose, projectId }: Relati
     if (!characters.length && !locations.length && !timeline.length) return;
 
     const newNodes: Node[] = [];
-    const nodeWidth = 140;
-    const nodeHeight = 80;
-    const horizontalSpacing = 180;
-    const verticalSpacing = 120;
-    const sectionSpacing = 150;
+    const layoutConfig = {
+      horizontalSpacing: 180,
+      verticalSpacing: 120,
+      sectionSpacing: 150,
+      baseX: 80,
+      baseY: 80
+    };
     
-    // Add character nodes with better spacing
-    characters.forEach((char, index) => {
-      const cols = Math.min(4, Math.ceil(Math.sqrt(characters.length)));
-      newNodes.push({
-        id: `char-${char.id}`,
-        type: "character",
-        name: char.name,
-        x: 80 + (index % cols) * horizontalSpacing,
-        y: 80 + Math.floor(index / cols) * verticalSpacing,
-        data: char,
+    // Helper function to create nodes for a section
+    const createSectionNodes = (
+      items: any[], 
+      prefix: string, 
+      type: Node['type'], 
+      maxCols: number, 
+      startY: number,
+      nameKey: string = 'name'
+    ) => {
+      const cols = Math.min(maxCols, Math.ceil(Math.sqrt(items.length)));
+      return items.map((item, index) => ({
+        id: `${prefix}-${item.id}`,
+        type,
+        name: item[nameKey],
+        x: layoutConfig.baseX + (index % cols) * layoutConfig.horizontalSpacing,
+        y: startY + Math.floor(index / cols) * layoutConfig.verticalSpacing,
+        data: item,
         connections: []
-      });
-    });
+      }));
+    };
+
+    // Add character nodes
+    const characterNodes = createSectionNodes(characters, 'char', 'character', 4, layoutConfig.baseY);
+    newNodes.push(...characterNodes);
 
     // Add location nodes in separate section
     const characterRows = Math.ceil(characters.length / 4);
-    const locationStartY = 80 + characterRows * verticalSpacing + sectionSpacing;
-    
-    locations.forEach((loc, index) => {
-      const cols = Math.min(3, Math.ceil(Math.sqrt(locations.length)));
-      newNodes.push({
-        id: `loc-${loc.id}`,
-        type: "location",
-        name: loc.name,
-        x: 80 + (index % cols) * horizontalSpacing,
-        y: locationStartY + Math.floor(index / cols) * verticalSpacing,
-        data: loc,
-        connections: []
-      });
-    });
+    const locationStartY = layoutConfig.baseY + characterRows * layoutConfig.verticalSpacing + layoutConfig.sectionSpacing;
+    const locationNodes = createSectionNodes(locations, 'loc', 'location', 3, locationStartY);
+    newNodes.push(...locationNodes);
 
     // Add event nodes in bottom section
     const locationRows = Math.ceil(locations.length / 3);
-    const eventStartY = locationStartY + locationRows * verticalSpacing + sectionSpacing;
-    
-    timeline.forEach((event, index) => {
-      const cols = Math.min(5, Math.ceil(Math.sqrt(timeline.length)));
-      newNodes.push({
-        id: `event-${event.id}`,
-        type: "event",
-        name: event.title,
-        x: 80 + (index % cols) * horizontalSpacing,
-        y: eventStartY + Math.floor(index / cols) * verticalSpacing,
-        data: event,
-        connections: []
-      });
-    });
+    const eventStartY = locationStartY + locationRows * layoutConfig.verticalSpacing + layoutConfig.sectionSpacing;
+    const eventNodes = createSectionNodes(timeline, 'event', 'event', 5, eventStartY, 'title');
+    newNodes.push(...eventNodes);
 
     setNodes(newNodes);
 

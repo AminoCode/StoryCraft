@@ -83,56 +83,40 @@ export default function WriterPage() {
     generateWritingPrompt 
   } = useWritingAssistant();
 
+  // Consolidated mutation helpers
+  const apiRequest = async (method: string, endpoint: string, data?: any) => {
+    const response = await fetch(endpoint, {
+      method,
+      headers: { "Content-Type": "application/json" },
+      ...(data && { body: JSON.stringify(data) }),
+    });
+    if (!response.ok) throw new Error(`Failed to ${method.toLowerCase()} ${endpoint.split('/').pop()}`);
+    return response.json();
+  };
+
   const createChapterMutation = useMutation({
-    mutationFn: async (data: InsertChapter) => {
-      const response = await fetch("/api/chapters", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      if (!response.ok) throw new Error("Failed to create chapter");
-      return response.json();
-    },
+    mutationFn: (data: InsertChapter) => apiRequest("POST", "/api/chapters", data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/projects", projectId, "chapters"] });
       setShowNewChapterDialog(false);
       setNewChapterTitle("");
-      toast({
-        title: "Chapter created",
-        description: "Your new chapter has been created successfully.",
-      });
+      toast({ title: "Chapter created", description: "Your new chapter has been created successfully." });
     },
   });
 
   const deleteChapterMutation = useMutation({
-    mutationFn: async (chapterId: string) => {
-      const response = await fetch(`/api/chapters/${chapterId}`, {
-        method: "DELETE",
-      });
-      if (!response.ok) throw new Error("Failed to delete chapter");
-      return response.json();
-    },
+    mutationFn: (chapterId: string) => apiRequest("DELETE", `/api/chapters/${chapterId}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/projects", projectId, "chapters"] });
       setShowDeleteDialog(false);
       setChapterToDelete(null);
-      toast({
-        title: "Chapter deleted",
-        description: "The chapter has been deleted successfully.",
-      });
+      toast({ title: "Chapter deleted", description: "The chapter has been deleted successfully." });
     },
   });
 
   const saveChapterMutation = useMutation({
-    mutationFn: async (data: { content: string; wordCount: number }) => {
-      const response = await fetch(`/api/chapters/${chapterId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      if (!response.ok) throw new Error("Failed to save chapter");
-      return response.json();
-    },
+    mutationFn: (data: { content: string; wordCount: number }) => 
+      apiRequest("PUT", `/api/chapters/${chapterId}`, data),
     onSuccess: () => {
       setLastSaved(new Date());
       queryClient.invalidateQueries({ queryKey: ["/api/chapters", chapterId] });

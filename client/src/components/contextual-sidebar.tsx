@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, Users, MapPin, Clock, Edit3, Trash2, RefreshCw, Brain } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
-import type { Character, Location, TimelineEvent, InsertCharacter, InsertLocation, InsertTimelineEvent } from "@shared/schema";
+import type { Character, Location, TimelineEvent, InsertCharacter, InsertLocation } from "@shared/schema";
 
 interface ContextualSidebarProps {
   documentId: string;
@@ -26,7 +26,7 @@ export default function ContextualSidebar({ documentId, projectId, isBottomLayou
   const [showNewTimelineDialog, setShowNewTimelineDialog] = useState(false);
   const [newCharacter, setNewCharacter] = useState<Partial<InsertCharacter>>({});
   const [newLocation, setNewLocation] = useState<Partial<InsertLocation>>({});
-  const [newTimelineEvent, setNewTimelineEvent] = useState<Partial<InsertTimelineEvent>>({});
+  const [newTimelineEvent, setNewTimelineEvent] = useState<Partial<TimelineEvent>>({});
   
   const { toast } = useToast();
 
@@ -43,62 +43,43 @@ export default function ContextualSidebar({ documentId, projectId, isBottomLayou
     queryKey: projectId ? ["/api/projects", projectId, "timeline"] : ["/api/documents", documentId, "timeline"],
   });
 
-  // Mutations for creating new story elements
-  const createCharacterMutation = useMutation({
-    mutationFn: async (data: InsertCharacter) => {
-      const response = await fetch("/api/characters", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      if (!response.ok) throw new Error("Failed to create character");
-      return response.json();
-    },
-    onSuccess: () => {
-      const queryKey = projectId ? ["/api/projects", projectId, "characters"] : ["/api/documents", documentId, "characters"];
-      queryClient.invalidateQueries({ queryKey });
-      setShowNewCharacterDialog(false);
-      setNewCharacter({});
-      toast({ title: "Character created", description: "New character added successfully." });
-    },
+  // Consolidated mutation helper
+  const createMutation = (endpoint: string, entityType: string, successCallback: () => void) => 
+    useMutation({
+      mutationFn: async (data: any) => {
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+        if (!response.ok) throw new Error(`Failed to create ${entityType}`);
+        return response.json();
+      },
+      onSuccess: () => {
+        successCallback();
+        toast({ title: `${entityType} created`, description: `New ${entityType} added successfully.` });
+      },
+    });
+
+  const createCharacterMutation = createMutation("/api/characters", "character", () => {
+    const queryKey = projectId ? ["/api/projects", projectId, "characters"] : ["/api/documents", documentId, "characters"];
+    queryClient.invalidateQueries({ queryKey });
+    setShowNewCharacterDialog(false);
+    setNewCharacter({});
   });
 
-  const createLocationMutation = useMutation({
-    mutationFn: async (data: InsertLocation) => {
-      const response = await fetch("/api/locations", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      if (!response.ok) throw new Error("Failed to create location");
-      return response.json();
-    },
-    onSuccess: () => {
-      const queryKey = projectId ? ["/api/projects", projectId, "locations"] : ["/api/documents", documentId, "locations"];
-      queryClient.invalidateQueries({ queryKey });
-      setShowNewLocationDialog(false);
-      setNewLocation({});
-      toast({ title: "Location created", description: "New location added successfully." });
-    },
+  const createLocationMutation = createMutation("/api/locations", "location", () => {
+    const queryKey = projectId ? ["/api/projects", projectId, "locations"] : ["/api/documents", documentId, "locations"];
+    queryClient.invalidateQueries({ queryKey });
+    setShowNewLocationDialog(false);
+    setNewLocation({});
   });
 
-  const createTimelineEventMutation = useMutation({
-    mutationFn: async (data: InsertTimelineEvent) => {
-      const response = await fetch("/api/timeline", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      if (!response.ok) throw new Error("Failed to create timeline event");
-      return response.json();
-    },
-    onSuccess: () => {
-      const queryKey = projectId ? ["/api/projects", projectId, "timeline"] : ["/api/documents", documentId, "timeline"];
-      queryClient.invalidateQueries({ queryKey });
-      setShowNewTimelineDialog(false);
-      setNewTimelineEvent({});
-      toast({ title: "Timeline event created", description: "New timeline event added successfully." });
-    },
+  const createTimelineEventMutation = createMutation("/api/timeline", "timeline event", () => {
+    const queryKey = projectId ? ["/api/projects", projectId, "timeline"] : ["/api/documents", documentId, "timeline"];
+    queryClient.invalidateQueries({ queryKey });
+    setShowNewTimelineDialog(false);
+    setNewTimelineEvent({});
   });
 
   const handleCreateCharacter = () => {

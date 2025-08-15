@@ -52,9 +52,10 @@ export default function RichTextEditor({
       // If entities were auto-updated, refresh the sidebar data
       if (result?.autoUpdated && projectId) {
         const { queryClient } = await import("@/lib/queryClient");
-        queryClient.invalidateQueries({ queryKey: ["/api/projects", projectId, "characters"] });
-        queryClient.invalidateQueries({ queryKey: ["/api/projects", projectId, "locations"] });
-        queryClient.invalidateQueries({ queryKey: ["/api/projects", projectId, "timeline"] });
+        const entityTypes = ["characters", "locations", "timeline"];
+        entityTypes.forEach(type => {
+          queryClient.invalidateQueries({ queryKey: ["/api/projects", projectId, type] });
+        });
       }
     } catch (error) {
       // Only log meaningful errors, not empty or missing data
