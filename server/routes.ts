@@ -39,7 +39,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/projects/:id", async (req, res) => {
+  app.get("/api/projects/:id", isAuthenticated, async (req, res) => {
     try {
       const project = await storage.getProject(req.params.id);
       if (!project) {
@@ -73,11 +73,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(project);
     } catch (error) {
       console.error("Project creation error:", error);
-      res.status(400).json({ error: "Invalid project data", details: error.message });
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      res.status(400).json({ error: "Invalid project data", details: errorMessage });
     }
   });
 
-  app.put("/api/projects/:id", async (req, res) => {
+  app.put("/api/projects/:id", isAuthenticated, async (req, res) => {
     try {
       const project = await storage.updateProject(req.params.id, req.body);
       if (!project) {
@@ -90,7 +91,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Chapter routes
-  app.get("/api/projects/:projectId/chapters", async (req, res) => {
+  app.get("/api/projects/:projectId/chapters", isAuthenticated, async (req, res) => {
     try {
       const chapters = await storage.getChaptersByProject(req.params.projectId);
       res.json(chapters);
@@ -99,7 +100,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/chapters/:id", async (req, res) => {
+  app.get("/api/chapters/:id", isAuthenticated, async (req, res) => {
     try {
       const chapter = await storage.getChapter(req.params.id);
       if (!chapter) {
@@ -111,7 +112,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/chapters", async (req, res) => {
+  app.post("/api/chapters", isAuthenticated, async (req, res) => {
     try {
       const parsed = insertChapterSchema.parse(req.body);
       const chapter = await storage.createChapter(parsed);
@@ -121,7 +122,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/chapters/:id", async (req, res) => {
+  app.put("/api/chapters/:id", isAuthenticated, async (req, res) => {
     try {
       const chapter = await storage.updateChapter(req.params.id, req.body);
       if (!chapter) {
@@ -133,7 +134,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/chapters/:id", async (req, res) => {
+  app.delete("/api/chapters/:id", isAuthenticated, async (req, res) => {
     try {
       const result = await storage.deleteChapter(req.params.id);
       if (!result) {
@@ -146,7 +147,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Document routes
-  app.get("/api/documents/:id", async (req, res) => {
+  app.get("/api/documents/:id", isAuthenticated, async (req, res) => {
     try {
       const document = await storage.getDocument(req.params.id);
       if (!document) {
@@ -158,7 +159,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/documents", async (req, res) => {
+  app.post("/api/documents", isAuthenticated, async (req, res) => {
     try {
       const parsed = insertDocumentSchema.parse(req.body);
       const document = await storage.createDocument(parsed);
@@ -168,7 +169,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/documents/:id", async (req, res) => {
+  app.put("/api/documents/:id", isAuthenticated, async (req, res) => {
     try {
       const document = await storage.updateDocument(req.params.id, req.body);
       if (!document) {
@@ -181,7 +182,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Character routes
-  app.get("/api/projects/:projectId/characters", async (req, res) => {
+  app.get("/api/projects/:projectId/characters", isAuthenticated, async (req, res) => {
     try {
       const characters = await storage.getCharactersByProject(req.params.projectId);
       res.json(characters);
@@ -190,7 +191,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/chapters/:chapterId/characters", async (req, res) => {
+  app.get("/api/chapters/:chapterId/characters", isAuthenticated, async (req, res) => {
     try {
       const characters = await storage.getCharactersByChapter(req.params.chapterId);
       res.json(characters);
@@ -200,7 +201,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Keep old route for compatibility
-  app.get("/api/documents/:documentId/characters", async (req, res) => {
+  app.get("/api/documents/:documentId/characters", isAuthenticated, async (req, res) => {
     try {
       const characters = await storage.getCharactersByProject("default-project");
       res.json(characters);
@@ -209,7 +210,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/characters", async (req, res) => {
+  app.post("/api/characters", isAuthenticated, async (req, res) => {
     try {
       const parsed = insertCharacterSchema.parse(req.body);
       const character = await storage.createCharacter(parsed);
@@ -219,7 +220,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/characters/:id", async (req, res) => {
+  app.put("/api/characters/:id", isAuthenticated, async (req, res) => {
     try {
       const character = await storage.updateCharacter(req.params.id, req.body);
       if (!character) {
@@ -232,7 +233,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Location routes
-  app.get("/api/projects/:projectId/locations", async (req, res) => {
+  app.get("/api/projects/:projectId/locations", isAuthenticated, async (req, res) => {
     try {
       const locations = await storage.getLocationsByProject(req.params.projectId);
       res.json(locations);
@@ -241,7 +242,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/chapters/:chapterId/locations", async (req, res) => {
+  app.get("/api/chapters/:chapterId/locations", isAuthenticated, async (req, res) => {
     try {
       const locations = await storage.getLocationsByChapter(req.params.chapterId);
       res.json(locations);
@@ -251,7 +252,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Keep old route for compatibility
-  app.get("/api/documents/:documentId/locations", async (req, res) => {
+  app.get("/api/documents/:documentId/locations", isAuthenticated, async (req, res) => {
     try {
       const locations = await storage.getLocationsByProject("default-project");
       res.json(locations);
@@ -260,7 +261,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/locations", async (req, res) => {
+  app.post("/api/locations", isAuthenticated, async (req, res) => {
     try {
       const parsed = insertLocationSchema.parse(req.body);
       const location = await storage.createLocation(parsed);
@@ -271,7 +272,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Timeline routes
-  app.get("/api/projects/:projectId/timeline", async (req, res) => {
+  app.get("/api/projects/:projectId/timeline", isAuthenticated, async (req, res) => {
     try {
       const events = await storage.getTimelineEventsByProject(req.params.projectId);
       res.json(events);
@@ -280,7 +281,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/chapters/:chapterId/timeline", async (req, res) => {
+  app.get("/api/chapters/:chapterId/timeline", isAuthenticated, async (req, res) => {
     try {
       const events = await storage.getTimelineEventsByChapter(req.params.chapterId);
       res.json(events);
@@ -290,7 +291,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Keep old route for compatibility
-  app.get("/api/documents/:documentId/timeline", async (req, res) => {
+  app.get("/api/documents/:documentId/timeline", isAuthenticated, async (req, res) => {
     try {
       const events = await storage.getTimelineEventsByProject("default-project");
       res.json(events);
@@ -299,7 +300,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/timeline", async (req, res) => {
+  app.post("/api/timeline", isAuthenticated, async (req, res) => {
     try {
       const parsed = insertTimelineEventSchema.parse(req.body);
       const event = await storage.createTimelineEvent(parsed);
@@ -310,7 +311,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // AI-powered routes
-  app.post("/api/ai/extract-entities", async (req, res) => {
+  app.post("/api/ai/extract-entities", isAuthenticated, async (req, res) => {
     try {
       const { text } = req.body;
       if (!text) {
@@ -324,7 +325,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/ai/synonyms", async (req, res) => {
+  app.post("/api/ai/synonyms", isAuthenticated, async (req, res) => {
     try {
       const { word, context } = req.body;
       if (!word || !context) {
@@ -338,7 +339,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/ai/analyze", async (req, res) => {
+  app.post("/api/ai/analyze", isAuthenticated, async (req, res) => {
     try {
       const { text, projectId, autoUpdate = true } = req.body;
       if (!text) {

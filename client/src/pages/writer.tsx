@@ -85,13 +85,26 @@ export default function WriterPage() {
 
   // Consolidated mutation helpers
   const apiRequest = async (method: string, endpoint: string, data?: any) => {
+    console.log(`Making ${method} request to ${endpoint}`, data);
     const response = await fetch(endpoint, {
       method,
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        // Include credentials for authentication
+      },
+      credentials: 'include',
       ...(data && { body: JSON.stringify(data) }),
     });
-    if (!response.ok) throw new Error(`Failed to ${method.toLowerCase()} ${endpoint.split('/').pop()}`);
-    return response.json();
+    
+    console.log(`Response status: ${response.status}`);
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`API error: ${response.status} - ${errorText}`);
+      throw new Error(`Failed to ${method.toLowerCase()} ${endpoint.split('/').pop()}: ${response.status} ${errorText}`);
+    }
+    const result = await response.json();
+    console.log(`API response:`, result);
+    return result;
   };
 
   const createChapterMutation = useMutation({
@@ -115,9 +128,15 @@ export default function WriterPage() {
   });
 
   const saveChapterMutation = useMutation({
-    mutationFn: (data: { content: string; wordCount: number }) => 
-      apiRequest("PUT", `/api/chapters/${chapterId}`, data),
-    onSuccess: () => {
+    mutationFn: (data: { content: string; wordCount: number }) => {
+      if (!chapterId) {
+        throw new Error("No chapter ID provided");
+      }
+      console.log("Saving chapter:", chapterId, "with data:", data);
+      return apiRequest("PUT", `/api/chapters/${chapterId}`, data);
+    },
+    onSuccess: (result) => {
+      console.log("Save successful:", result);
       setLastSaved(new Date());
       queryClient.invalidateQueries({ queryKey: ["/api/chapters", chapterId] });
       // Only show toast for manual saves, not auto-saves
@@ -127,10 +146,10 @@ export default function WriterPage() {
       (window as any).isAutoSave = false;
     },
     onError: (error) => {
-      console.error("Save error:", error);
+      console.error("Save error details:", error);
       toast({ 
         title: "Save Error", 
-        description: "Failed to save chapter. Please try again.",
+        description: `Failed to save chapter: ${error instanceof Error ? error.message : "Unknown error"}`,
         variant: "destructive"
       });
     },
