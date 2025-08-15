@@ -363,7 +363,7 @@ export default function WriterPage() {
         {/* Left Sidebar for Chapter Navigation */}
         <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
           {/* Project Header */}
-          <div className="p-4 border-b border-gray-200 pt-[5px] pb-[5px]">
+          <div className="p-4 border-b border-gray-200 pt-[6px] pb-[6px]">
             <Link href="/projects">
               <Button variant="ghost" size="sm" className="w-full justify-start gap-2 mb-3">
                 <ArrowLeft className="h-4 w-4" />
