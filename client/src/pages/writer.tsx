@@ -458,9 +458,9 @@ export default function WriterPage() {
         </div>
       
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col" style={{ height: '100vh', maxHeight: '100vh' }}>
         {/* Editing Controls Header */}
-        <div className="bg-white border-b border-gray-200 px-6 py-3">
+        <div className="flex-shrink-0 bg-white border-b border-gray-200 px-6 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               {/* Enhanced Toolbar Controls */}
@@ -544,15 +544,17 @@ export default function WriterPage() {
         </div>
 
         {/* Layout Controls */}
-        <LayoutControls
-          layoutMode={layoutMode}
-          onLayoutChange={setLayoutMode}
-          onRelationshipViewToggle={() => setShowRelationshipView(!showRelationshipView)}
-          showRelationshipView={showRelationshipView}
-          showHorizontalTimeline={showHorizontalTimeline}
-          onHorizontalTimelineToggle={() => setShowHorizontalTimeline(!showHorizontalTimeline)}
-          projectId={projectId}
-        />
+        <div className="flex-shrink-0">
+          <LayoutControls
+            layoutMode={layoutMode}
+            onLayoutChange={setLayoutMode}
+            onRelationshipViewToggle={() => setShowRelationshipView(!showRelationshipView)}
+            showRelationshipView={showRelationshipView}
+            showHorizontalTimeline={showHorizontalTimeline}
+            onHorizontalTimelineToggle={() => setShowHorizontalTimeline(!showHorizontalTimeline)}
+            projectId={projectId}
+          />
+        </div>
 
         {/* Horizontal Timeline - Independent Container */}
         {showHorizontalTimeline && (
@@ -570,88 +572,90 @@ export default function WriterPage() {
           </div>
         )}
 
-        {/* Writing Area Layout */}
-        {layoutMode === "sidebar" ? (
-          <div className="flex-1 flex min-h-0">
-            {/* Main Writing Area */}
-            <div 
-              className="flex-1 bg-white"
-              style={{
-                height: '100%',
-                maxHeight: '100%',
-                overflow: 'hidden'
-              }}
-            >
-              <RichTextEditor
-                content={content}
-                onChange={handleContentChange}
-                documentId={chapterId || "default-doc"}
-                projectId={projectId}
-                style={{ 
-                  fontSize, 
-                  fontFamily, 
-                  lineHeight: lineSpacing 
-                }}
-              />
-            </div>
-
-            <ResizableSidebar defaultWidth={320} minWidth={250} maxWidth={500}>
+        {/* Writing Area Layout - Remaining Space */}
+        <div className="flex-1 min-h-0">
+          {layoutMode === "sidebar" ? (
+            <div className="flex h-full">
+              {/* Main Writing Area */}
               <div 
+                className="flex-1 bg-white"
                 style={{
                   height: '100%',
                   maxHeight: '100%',
                   overflow: 'hidden'
                 }}
               >
+                <RichTextEditor
+                  content={content}
+                  onChange={handleContentChange}
+                  documentId={chapterId || "default-doc"}
+                  projectId={projectId}
+                  style={{ 
+                    fontSize, 
+                    fontFamily, 
+                    lineHeight: lineSpacing 
+                  }}
+                />
+              </div>
+
+              <ResizableSidebar defaultWidth={320} minWidth={250} maxWidth={500}>
+                <div 
+                  style={{
+                    height: '100%',
+                    maxHeight: '100%',
+                    overflow: 'hidden'
+                  }}
+                >
+                  <ContextualSidebar 
+                    documentId={chapterId || "default-doc"} 
+                    projectId={projectId}
+                    isBottomLayout={false}
+                  />
+                </div>
+              </ResizableSidebar>
+            </div>
+          ) : (
+            <div className="flex flex-col h-full">
+              {/* Main Writing Area */}
+              <div 
+                className="flex-1 bg-white"
+                style={{
+                  minHeight: 0,
+                  overflow: 'hidden'
+                }}
+              >
+                <RichTextEditor
+                  content={content}
+                  onChange={handleContentChange}
+                  documentId={chapterId || "default-doc"}
+                  projectId={projectId}
+                  style={{ 
+                    fontSize, 
+                    fontFamily, 
+                    lineHeight: lineSpacing 
+                  }}
+                />
+              </div>
+
+              {/* Bottom Panel for Story Elements */}
+              <div 
+                className="flex-shrink-0 border-t border-gray-200 bg-white"
+                style={{
+                  height: '320px',
+                  minHeight: '320px',
+                  maxHeight: '320px',
+                  overflow: 'hidden'
+                }}
+              >
                 <ContextualSidebar 
                   documentId={chapterId || "default-doc"} 
                   projectId={projectId}
-                  isBottomLayout={false}
+                  isBottomLayout={true}
                 />
               </div>
-            </ResizableSidebar>
-          </div>
-        ) : (
-          <div className="flex-1 flex flex-col min-h-0">
-            {/* Main Writing Area */}
-            <div 
-              className="flex-1 bg-white"
-              style={{
-                minHeight: 0,
-                overflow: 'hidden'
-              }}
-            >
-              <RichTextEditor
-                content={content}
-                onChange={handleContentChange}
-                documentId={chapterId || "default-doc"}
-                projectId={projectId}
-                style={{ 
-                  fontSize, 
-                  fontFamily, 
-                  lineHeight: lineSpacing 
-                }}
-              />
             </div>
-
-            {/* Bottom Panel for Story Elements */}
-            <div 
-              className="flex-shrink-0 border-t border-gray-200 bg-white"
-              style={{
-                height: '320px',
-                minHeight: '320px',
-                maxHeight: '320px',
-                overflow: 'hidden'
-              }}
-            >
-              <ContextualSidebar 
-                documentId={chapterId || "default-doc"} 
-                projectId={projectId}
-                isBottomLayout={true}
-              />
-            </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
       </ThemeProvider>
       {/* Grammar Suggestions Panel */}
