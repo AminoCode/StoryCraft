@@ -144,13 +144,12 @@ export default function ContextualSidebar({ documentId, projectId, isBottomLayou
 
   return (
     <div 
-      className={`bg-white border-gray-200 flex flex-col ${
+      className={`bg-white border-gray-200 ${
         isBottomLayout 
-          ? 'w-full border-t flex-row' 
-          : 'w-full'
+          ? 'w-full flex-row flex h-full' 
+          : 'w-full flex flex-col h-full'
       }`}
       style={{ 
-        height: '100%', 
         overflowY: 'auto',
         overflowX: 'hidden'
       }}
@@ -163,13 +162,13 @@ export default function ContextualSidebar({ documentId, projectId, isBottomLayou
       </div>
 
       {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className={`flex-1 flex min-h-0 ${
-        isBottomLayout ? 'flex-row' : 'flex-col'
+      <Tabs value={activeTab} onValueChange={setActiveTab} className={`flex-1 flex ${
+        isBottomLayout ? 'flex-row h-full' : 'flex-col min-h-0'
       }`}>
-        <TabsList className={`grid border-gray-200 rounded-none h-auto bg-transparent flex-shrink-0 ${
+        <TabsList className={`grid border-gray-200 rounded-none bg-transparent flex-shrink-0 ${
           isBottomLayout 
-            ? 'grid-rows-3 w-auto border-r' 
-            : 'grid-cols-3 w-full border-b'
+            ? 'grid-rows-3 w-32 border-r h-full' 
+            : 'grid-cols-3 w-full border-b h-auto'
         }`}>
           <TabsTrigger 
             value="characters" 
@@ -194,7 +193,7 @@ export default function ContextualSidebar({ documentId, projectId, isBottomLayou
           </TabsTrigger>
         </TabsList>
 
-        <div className="flex-1 min-h-0 relative">
+        <div className={`flex-1 relative ${isBottomLayout ? 'min-w-0' : 'min-h-0'}`}>
 
           <TabsContent value="characters" className="absolute inset-0 p-0 m-0">
             <div 

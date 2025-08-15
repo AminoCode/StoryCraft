@@ -580,7 +580,15 @@ export default function WriterPage() {
             </div>
 
             {/* Bottom Panel for Story Elements */}
-            <div className="h-80 border-t border-gray-200 bg-white">
+            <div 
+              className="border-t border-gray-200 bg-white"
+              style={{
+                height: '320px',
+                minHeight: '320px',
+                maxHeight: '50vh',
+                overflowY: 'auto'
+              }}
+            >
               <ContextualSidebar 
                 documentId={chapterId || "default-doc"} 
                 projectId={projectId}
