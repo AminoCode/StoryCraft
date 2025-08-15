@@ -26,7 +26,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { useWritingAssistant } from "@/hooks/use-writing-assistant";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
-import { ArrowLeft, Plus, BookOpen, Edit3, Save, Clock } from "lucide-react";
+import { ArrowLeft, Plus, BookOpen, Edit3, Save, Clock, Wand2, Book, Download, Type, Trash2 } from "lucide-react";
 import type { Project, Chapter, InsertChapter, Document, AiSuggestion } from "@shared/schema";
 
 export default function WriterPage() {
