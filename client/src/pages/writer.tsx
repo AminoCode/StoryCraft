@@ -154,6 +154,14 @@ export default function WriterPage() {
     setContent(newContent);
     const words = newContent.trim().split(/\s+/).filter(word => word.length > 0);
     setWordCount(words.length);
+    
+    // Auto-save after content changes
+    if (chapterId && newContent !== (currentChapter?.content || "")) {
+      clearTimeout((window as any).saveTimeout);
+      (window as any).saveTimeout = setTimeout(() => {
+        saveChapterMutation.mutate({ content: newContent, wordCount: words.length });
+      }, 1000); // Save after 1 second of no changes
+    }
   };
 
   const handleSave = () => {
