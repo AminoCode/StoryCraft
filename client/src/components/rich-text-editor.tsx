@@ -80,11 +80,11 @@ export default function RichTextEditor({
         overflowX: 'hidden',
         backgroundColor: 'white'
       }}
-      className="flex-1"
+      className="flex-1 rich-text-editor"
     >
       <div
         ref={editorRef}
-        className="rich-text-editor prose max-w-none font-serif leading-relaxed focus:outline-none bg-white text-gray-900 p-8"
+        className="prose max-w-none font-serif leading-relaxed focus:outline-none bg-white text-gray-900 p-8"
         contentEditable
         onInput={handleInput}
         style={{ 

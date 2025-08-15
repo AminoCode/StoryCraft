@@ -392,11 +392,13 @@ export default function WriterPage() {
           <div className="flex-1 flex flex-col min-h-0">
             {/* Scrollable Chapter List */}
             <div 
-              className="flex-1 scrollable-content"
+              className="flex-1 chapter-list-container"
               style={{ 
-                overflowY: 'auto' as const,
+                overflowY: 'auto',
                 overflowX: 'hidden',
-                minHeight: 0
+                minHeight: 0,
+                maxHeight: '100%',
+                height: '100%'
               }}
             >
               <div className="p-2 space-y-1">

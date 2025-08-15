@@ -197,7 +197,7 @@ export default function ContextualSidebar({ documentId, projectId, isBottomLayou
 
           <TabsContent value="characters" className="absolute inset-0 p-0 m-0">
             <div 
-              className="p-4 space-y-4" 
+              className="p-4 space-y-4 contextual-sidebar-content" 
               style={{ 
                 height: '100%', 
                 overflowY: 'auto',
