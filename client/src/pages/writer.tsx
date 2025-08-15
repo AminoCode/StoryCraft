@@ -52,6 +52,7 @@ export default function WriterPage() {
   const [suggestions, setSuggestions] = useState<AiSuggestion[]>([]);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [chapterToDelete, setChapterToDelete] = useState<string | null>(null);
+  const [showGrammarSuggestions, setShowGrammarSuggestions] = useState(false);
   
   const { toast } = useToast();
 
@@ -216,15 +217,15 @@ export default function WriterPage() {
     
     switch (type) {
       case 'bold':
-        document.execCommand('bold');
+        window.document.execCommand('bold');
         break;
       case 'italic':
-        document.execCommand('italic');
+        window.document.execCommand('italic');
         break;
       case 'align':
-        if (value === 'center') document.execCommand('justifyCenter');
-        else if (value === 'right') document.execCommand('justifyRight');
-        else document.execCommand('justifyLeft');
+        if (value === 'center') window.document.execCommand('justifyCenter');
+        else if (value === 'right') window.document.execCommand('justifyRight');
+        else window.document.execCommand('justifyLeft');
         break;
       case 'dialogue':
         if (value === 'standard') formattedText = `"${selectedText.replace(/^["']|["']$/g, '')}"`;
@@ -232,8 +233,8 @@ export default function WriterPage() {
         else if (value === 'action') formattedText = `—${selectedText}`;
         break;
       case 'list':
-        if (value === 'bullet') document.execCommand('insertUnorderedList');
-        else if (value === 'numbered') document.execCommand('insertOrderedList');
+        if (value === 'bullet') window.document.execCommand('insertUnorderedList');
+        else if (value === 'numbered') window.document.execCommand('insertOrderedList');
         break;
       case 'paragraph':
         if (value === 'scene-break') formattedText = `\n\n* * *\n\n${selectedText}`;
@@ -241,10 +242,10 @@ export default function WriterPage() {
         break;
     }
     
-    if (formattedText !== selectedText && type === 'dialogue' || type === 'paragraph') {
+    if (formattedText !== selectedText && (type === 'dialogue' || type === 'paragraph')) {
       range.deleteContents();
-      range.insertNode(document.createTextNode(formattedText));
-      handleContentChange(document.querySelector('[contenteditable="true"]')?.innerHTML || '');
+      range.insertNode(window.document.createTextNode(formattedText));
+      handleContentChange(window.document.querySelector('[contenteditable="true"]')?.innerHTML || '');
     }
   };
 
@@ -334,8 +335,8 @@ export default function WriterPage() {
     if (!chapterId && chapters.length > 0 && !isChaptersLoading) {
       // Find the most recently edited chapter (using updatedAt or createdAt field)
       const sortedChapters = [...chapters].sort((a, b) => {
-        const aTime = new Date(a.updatedAt || a.createdAt).getTime();
-        const bTime = new Date(b.updatedAt || b.createdAt).getTime();
+        const aTime = new Date(a.lastSaved || a.createdAt || 0).getTime();
+        const bTime = new Date(b.lastSaved || b.createdAt || 0).getTime();
         return bTime - aTime;
       });
       
@@ -550,9 +551,6 @@ export default function WriterPage() {
                   fontFamily, 
                   lineHeight: lineSpacing 
                 }}
-                suggestions={suggestions}
-                onApplySuggestion={handleApplySuggestion}
-                onDismissSuggestion={handleDismissSuggestion}
               />
             </div>
 
@@ -578,9 +576,6 @@ export default function WriterPage() {
                   fontFamily, 
                   lineHeight: lineSpacing 
                 }}
-                suggestions={suggestions}
-                onApplySuggestion={handleApplySuggestion}
-                onDismissSuggestion={handleDismissSuggestion}
               />
             </div>
 
@@ -601,8 +596,6 @@ export default function WriterPage() {
       {showGrammarSuggestions && (
         <GrammarSuggestionsPanel
           suggestions={suggestions}
-          onApplySuggestion={handleApplySuggestion}
-          onDismissSuggestion={handleDismissSuggestion}
           onClose={() => setShowGrammarSuggestions(false)}
         />
       )}

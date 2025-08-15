@@ -13,14 +13,12 @@ interface AiSuggestion {
 
 interface GrammarSuggestionsPanelProps {
   suggestions: AiSuggestion[];
-  onApply: (suggestion: AiSuggestion) => void;
-  onDismiss: (suggestion: AiSuggestion) => void;
+  onClose: () => void;
 }
 
 export default function GrammarSuggestionsPanel({ 
   suggestions, 
-  onApply, 
-  onDismiss 
+  onClose 
 }: GrammarSuggestionsPanelProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -39,20 +37,22 @@ export default function GrammarSuggestionsPanel({
   };
 
   const handleApply = () => {
-    onApply(currentSuggestion);
-    // Move to next suggestion if available, otherwise stay
+    // Apply suggestion logic would go here
+    console.log('Applied suggestion:', currentSuggestion);
+    // Move to next suggestion if available, otherwise close
     if (canGoForward) {
-      setCurrentIndex(currentIndex);
-    } else if (suggestions.length > 1) {
-      setCurrentIndex(Math.max(0, currentIndex - 1));
+      setCurrentIndex(currentIndex + 1);
+    } else {
+      onClose();
     }
   };
 
   const handleDismiss = () => {
-    onDismiss(currentSuggestion);
-    // Move to next suggestion if available, otherwise stay
+    // Dismiss suggestion logic would go here
+    console.log('Dismissed suggestion:', currentSuggestion);
+    // Move to next suggestion if available, otherwise close
     if (canGoForward) {
-      setCurrentIndex(currentIndex);
+      setCurrentIndex(currentIndex + 1);
     } else if (suggestions.length > 1) {
       setCurrentIndex(Math.max(0, currentIndex - 1));
     }

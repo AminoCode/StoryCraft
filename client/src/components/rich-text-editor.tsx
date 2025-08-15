@@ -10,9 +10,7 @@ export interface RichTextEditorProps {
   documentId: string;
   projectId?: string;
   style?: React.CSSProperties;
-  suggestions?: AiSuggestion[];
-  onApplySuggestion?: (suggestion: AiSuggestion) => void;
-  onDismissSuggestion?: (suggestion: AiSuggestion) => void;
+
 }
 
 interface AiSuggestion {
@@ -29,9 +27,7 @@ export default function RichTextEditor({
   documentId, 
   projectId, 
   style,
-  suggestions = [],
-  onApplySuggestion,
-  onDismissSuggestion
+
 }: RichTextEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
   const [showPrompt, setShowPrompt] = useState(false);
@@ -90,22 +86,7 @@ export default function RichTextEditor({
     }
   };
 
-  const applySuggestion = (suggestion: AiSuggestion) => {
-    if (editorRef.current) {
-      const currentContent = editorRef.current.innerHTML;
-      const updatedContent = currentContent.replace(
-        suggestion.originalText, 
-        suggestion.suggestion
-      );
-      editorRef.current.innerHTML = updatedContent;
-      onChange(updatedContent);
-    }
-    onApplySuggestion?.(suggestion);
-  };
 
-  const dismissSuggestion = (suggestion: AiSuggestion) => {
-    onDismissSuggestion?.(suggestion);
-  };
 
   return (
     <div className="h-full bg-background">
@@ -167,12 +148,7 @@ export default function RichTextEditor({
         </div>
       </div>
 
-      {/* Grammar Suggestions Panel */}
-      <GrammarSuggestionsPanel
-        suggestions={suggestions}
-        onApply={applySuggestion}
-        onDismiss={dismissSuggestion}
-      />
+
     </div>
   );
 }
