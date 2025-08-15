@@ -76,7 +76,7 @@ export default function RichTextEditor({
       style={{ 
         height: '100%',
         maxHeight: '100%', 
-        overflowY: 'auto !important',
+        overflowY: 'auto',
         overflowX: 'hidden',
         backgroundColor: 'white'
       }}
@@ -94,6 +94,9 @@ export default function RichTextEditor({
           minHeight: '200vh',
           height: 'auto',
           width: '100%',
+          outline: 'none',
+          userSelect: 'text',
+          cursor: 'text',
           ...style
         }}
         suppressContentEditableWarning={true}

@@ -287,6 +287,12 @@ html, body {
   max-height: 100% !important;
 }
 
+.rich-text-editor [contenteditable] {
+  height: auto !important;
+  min-height: 200vh !important;
+  overflow: visible !important;
+}
+
 .contextual-sidebar-content {
   overflow-y: auto !important;
   overflow-x: hidden !important;
