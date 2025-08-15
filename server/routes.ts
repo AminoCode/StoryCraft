@@ -1,5 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
 import { writingAssistant } from "./services/writing-assistant";
 import { setupAuth, isAuthenticated } from "./replitAuth";
@@ -488,5 +489,164 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   const httpServer = createServer(app);
+  // Set up WebSocket server for real-time collaboration
+  const wss = new WebSocketServer({ 
+    server: httpServer, 
+    path: '/ws'
+  });
+
+  // Track active connections by document/chapter ID
+  const documentConnections = new Map<string, Set<WebSocket & { userId?: string; userName?: string; cursorPosition?: number }>>();
+
+  wss.on('connection', (ws: WebSocket & { userId?: string; userName?: string; cursorPosition?: number }, request) => {
+    console.log('WebSocket connection established');
+    
+    ws.on('message', async (message: string) => {
+      try {
+        const data = JSON.parse(message);
+        console.log('WebSocket message received:', data);
+
+        switch (data.type) {
+          case 'join_document':
+            // User joins a document for collaboration
+            const { documentId, userId, userName } = data;
+            ws.userId = userId;
+            ws.userName = userName;
+            
+            // Add to document connections
+            if (!documentConnections.has(documentId)) {
+              documentConnections.set(documentId, new Set());
+            }
+            documentConnections.get(documentId)!.add(ws);
+            
+            // Notify other users about new collaborator
+            broadcast(documentId, {
+              type: 'user_joined',
+              userId,
+              userName,
+              timestamp: Date.now()
+            }, ws);
+            
+            // Send current collaborators to new user
+            const collaborators = Array.from(documentConnections.get(documentId) || [])
+              .filter(client => client !== ws && client.userId)
+              .map(client => ({
+                userId: client.userId,
+                userName: client.userName,
+                cursorPosition: client.cursorPosition
+              }));
+            
+            ws.send(JSON.stringify({
+              type: 'current_collaborators',
+              collaborators,
+              timestamp: Date.now()
+            }));
+            break;
+
+          case 'cursor_update':
+            // User moves cursor position
+            ws.cursorPosition = data.position;
+            if (data.documentId && ws.userId) {
+              broadcast(data.documentId, {
+                type: 'cursor_moved',
+                userId: ws.userId,
+                userName: ws.userName,
+                position: data.position,
+                timestamp: Date.now()
+              }, ws);
+            }
+            break;
+
+          case 'content_change':
+            // User makes content changes
+            if (data.documentId) {
+              // Store the change in database
+              try {
+                await storage.updateChapter(data.documentId, {
+                  content: data.content,
+                  wordCount: data.wordCount || 0
+                });
+                
+                // Broadcast change to other users
+                broadcast(data.documentId, {
+                  type: 'content_updated',
+                  content: data.content,
+                  wordCount: data.wordCount,
+                  userId: ws.userId,
+                  userName: ws.userName,
+                  timestamp: Date.now()
+                }, ws);
+              } catch (error) {
+                console.error('Error saving collaborative change:', error);
+                ws.send(JSON.stringify({
+                  type: 'error',
+                  message: 'Failed to save changes',
+                  timestamp: Date.now()
+                }));
+              }
+            }
+            break;
+
+          case 'leave_document':
+            // User leaves document
+            if (data.documentId && documentConnections.has(data.documentId)) {
+              documentConnections.get(data.documentId)!.delete(ws);
+              broadcast(data.documentId, {
+                type: 'user_left',
+                userId: ws.userId,
+                userName: ws.userName,
+                timestamp: Date.now()
+              }, ws);
+            }
+            break;
+        }
+      } catch (error) {
+        console.error('WebSocket message error:', error);
+        ws.send(JSON.stringify({
+          type: 'error',
+          message: 'Invalid message format',
+          timestamp: Date.now()
+        }));
+      }
+    });
+
+    ws.on('close', () => {
+      // Clean up when connection closes
+      documentConnections.forEach((connections, documentId) => {
+        if (connections.has(ws)) {
+          connections.delete(ws);
+          broadcast(documentId, {
+            type: 'user_left',
+            userId: ws.userId,
+            userName: ws.userName,
+            timestamp: Date.now()
+          }, ws);
+          
+          // Remove empty sets
+          if (connections.size === 0) {
+            documentConnections.delete(documentId);
+          }
+        }
+      });
+      console.log('WebSocket connection closed');
+    });
+
+    ws.on('error', (error) => {
+      console.error('WebSocket error:', error);
+    });
+  });
+
+  function broadcast(documentId: string, message: any, excludeWs?: WebSocket) {
+    const connections = documentConnections.get(documentId);
+    if (connections) {
+      const messageStr = JSON.stringify(message);
+      connections.forEach(client => {
+        if (client !== excludeWs && client.readyState === WebSocket.OPEN) {
+          client.send(messageStr);
+        }
+      });
+    }
+  }
+
   return httpServer;
 }

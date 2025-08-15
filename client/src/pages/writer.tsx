@@ -26,8 +26,9 @@ import { ThemeProvider } from "@/components/theme-provider";
 
 import { useWritingAssistant } from "@/hooks/use-writing-assistant";
 import { useToast } from "@/hooks/use-toast";
+import { useCollaboration } from "@/hooks/useCollaboration";
 import { queryClient } from "@/lib/queryClient";
-import { ArrowLeft, Plus, BookOpen, Edit3, Save, Clock, Wand2, Book, Download, Type, Trash2 } from "lucide-react";
+import { ArrowLeft, Plus, BookOpen, Edit3, Save, Clock, Wand2, Book, Download, Type, Trash2, Users2 } from "lucide-react";
 import type { Project, Chapter, InsertChapter, Document, AiSuggestion } from "@shared/schema";
 
 export default function WriterPage() {
@@ -53,6 +54,10 @@ export default function WriterPage() {
   const [suggestions, setSuggestions] = useState<AiSuggestion[]>([]);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [chapterToDelete, setChapterToDelete] = useState<string | null>(null);
+  
+  // Collaborative editing hooks
+  const collaboration = useCollaboration(chapterId || null);
+  const { collaborators, isConnected, sendCursorUpdate, sendContentChange } = collaboration;
   const [showGrammarSuggestions, setShowGrammarSuggestions] = useState(false);
   
   const { toast } = useToast();
@@ -133,6 +138,10 @@ export default function WriterPage() {
         throw new Error("No chapter ID provided");
       }
       console.log("Saving chapter:", chapterId, "with data:", data);
+      
+      // Send collaborative update
+      sendContentChange(data.content, data.wordCount);
+      
       return apiRequest("PUT", `/api/chapters/${chapterId}`, data);
     },
     onSuccess: (result) => {
@@ -165,6 +174,36 @@ export default function WriterPage() {
       setWordCount(document.wordCount);
     }
   }, [currentChapter, document, chapterId]);
+
+  // Set up collaborative content updates
+  useEffect(() => {
+    collaboration.onContentUpdate = (newContent: string, newWordCount: number, userId: string, userName: string) => {
+      console.log(`Received collaborative update from ${userName}:`, newContent);
+      setContent(newContent);
+      setWordCount(newWordCount);
+      toast({
+        title: "Document Updated",
+        description: `${userName} made changes to the document`,
+        duration: 3000
+      });
+    };
+
+    collaboration.onUserJoined = (userId: string, userName: string) => {
+      toast({
+        title: "User Joined",
+        description: `${userName} is now editing this document`,
+        duration: 2000
+      });
+    };
+
+    collaboration.onUserLeft = (userId: string, userName: string) => {
+      toast({
+        title: "User Left", 
+        description: `${userName} left the document`,
+        duration: 2000
+      });
+    };
+  }, [collaboration, toast]);
 
   const handleContentChange = (newContent: string) => {
     setContent(newContent);
@@ -564,6 +603,19 @@ export default function WriterPage() {
                 <span className="text-xs text-muted-foreground">
                   Chapter {currentChapter.order}
                 </span>
+              )}
+              
+              {/* Collaborator indicator */}
+              {collaborators.length > 0 && (
+                <div className="flex items-center gap-1 px-2 py-1 bg-green-100 text-green-800 rounded-md text-xs">
+                  <Users2 className="h-3 w-3" />
+                  {collaborators.length}
+                  {isConnected ? (
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                  ) : (
+                    <div className="w-2 h-2 bg-red-500 rounded-full" />
+                  )}
+                </div>
               )}
               
               {chapterId && (
