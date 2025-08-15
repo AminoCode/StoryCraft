@@ -47,20 +47,24 @@ export default function ContextualSidebar({ documentId, projectId, currentChapte
     if (selectedChapterFilter !== "all" && selectedChapterFilter !== "current") {
       return ["/api/chapters", selectedChapterFilter, entityType];
     }
-    return projectId ? ["/api/projects", projectId, entityType] : ["/api/documents", documentId, entityType];
+    // Only use project-based queries now - no document fallback
+    return projectId ? ["/api/projects", projectId, entityType] : ["disabled-query"];
   };
 
   // Use dynamic queries based on chapter filter selection
   const { data: characters = [], isLoading: charactersLoading } = useQuery<Character[]>({
     queryKey: getQueryKey("characters"),
+    enabled: projectId !== undefined && getQueryKey("characters")[0] !== "disabled-query",
   });
 
   const { data: locations = [], isLoading: locationsLoading } = useQuery<Location[]>({
     queryKey: getQueryKey("locations"),
+    enabled: projectId !== undefined && getQueryKey("locations")[0] !== "disabled-query",
   });
 
   const { data: timeline = [], isLoading: timelineLoading } = useQuery<TimelineEvent[]>({
     queryKey: getQueryKey("timeline"),
+    enabled: projectId !== undefined && getQueryKey("timeline")[0] !== "disabled-query",
   });
 
   // Consolidated mutation helper

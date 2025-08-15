@@ -75,11 +75,7 @@ export default function WriterPage() {
     enabled: !!chapterId,
   });
 
-  // Fallback to document API for compatibility - disabled to prevent 404
-  const { data: document, isLoading: isDocumentLoading } = useQuery<Document>({
-    queryKey: ["/api/documents", "default-doc"],
-    enabled: false, // Disabled to prevent unnecessary 404 calls
-  });
+  // Document API removed - using chapter-based approach only
 
   const { 
     analyzeText, 
@@ -169,11 +165,13 @@ export default function WriterPage() {
       setContent(currentChapter.content || "");
       setWordCount(currentChapter.wordCount || 0);
       setLastSaved(currentChapter.lastSaved ? new Date(currentChapter.lastSaved) : null);
-    } else if (document && !chapterId) {
-      setContent(document.content);
-      setWordCount(document.wordCount);
+    } else if (!chapterId) {
+      // Reset content when no chapter is selected
+      setContent("");
+      setWordCount(0);
+      setLastSaved(null);
     }
-  }, [currentChapter, document, chapterId]);
+  }, [currentChapter, chapterId]);
 
   // Set up collaborative content updates
   useEffect(() => {
@@ -423,7 +421,7 @@ export default function WriterPage() {
     }
   }, [chapterId, chapters, projectId, isChaptersLoading]);
 
-  const isLoading = isProjectLoading || isChaptersLoading || isChapterLoading || isDocumentLoading;
+  const isLoading = isProjectLoading || isChaptersLoading || isChapterLoading;
 
   if (isLoading) {
     return (
