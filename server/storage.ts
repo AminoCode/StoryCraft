@@ -30,7 +30,6 @@ import { randomUUID } from "crypto";
 
 export interface IStorage {
   // User operations
-  // (IMPORTANT) these user operations are mandatory for Replit Auth.
   getUser(id: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
   
@@ -38,7 +37,7 @@ export interface IStorage {
   getAllProjects(): Promise<Project[]>;
   getProjectsByUser(userId: string): Promise<Project[]>;
   getProject(id: string): Promise<Project | undefined>;
-  createProject(project: InsertProject): Promise<Project>;
+  createProject(project: InsertProject & { userId: string }): Promise<Project>;
   updateProject(id: string, updates: Partial<Project>): Promise<Project | undefined>;
   deleteProject(id: string): Promise<boolean>;
   
@@ -85,7 +84,6 @@ export interface IStorage {
 
 export class DatabaseStorage implements IStorage {
   // User operations
-  // (IMPORTANT) these user operations are mandatory for Replit Auth.
 
   async getUser(id: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
@@ -123,7 +121,9 @@ export class DatabaseStorage implements IStorage {
     return project;
   }
 
-  async createProject(insertProject: InsertProject): Promise<Project> {
+  async createProject(
+    insertProject: InsertProject & { userId: string },
+  ): Promise<Project> {
     const [project] = await db
       .insert(projects)
       .values({
@@ -342,7 +342,6 @@ export class DatabaseStorage implements IStorage {
 
 export class MemStorage implements IStorage {
   // User operations
-  // (IMPORTANT) these user operations are mandatory for Replit Auth.
   async getUser(id: string): Promise<User | undefined> {
     // Mock implementation for development
     return {
@@ -444,7 +443,9 @@ As she approached the library door, Sarah noticed something peculiar. The doorkn
     return this.projects.get(id);
   }
 
-  async createProject(insertProject: InsertProject): Promise<Project> {
+  async createProject(
+    insertProject: InsertProject & { userId: string },
+  ): Promise<Project> {
     const id = randomUUID();
     const project: Project = {
       id,
